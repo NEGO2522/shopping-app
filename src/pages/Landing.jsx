@@ -9,71 +9,26 @@ function Landing() {
   };
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#fdf2f8",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "600px",
-          textAlign: "center",
-          padding: "2rem",
-          backgroundColor: "#fff",
-          borderRadius: "1.5rem",
-          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            color: "#be185d",
-            marginBottom: "1rem",
-          }}
-        >
+    <div className="h-screen w-full flex justify-center items-center bg-pink-50">
+      <div className="max-w-xl text-center p-8 bg-white rounded-3xl shadow-2xl">
+        <h1 className="text-4xl font-bold text-pink-700 mb-4">
           💘 Welcome to CrushConnect
         </h1>
-        <h2
-          style={{
-            fontSize: "1.25rem",
-            color: "#6b21a8",
-            marginBottom: "1rem",
-          }}
-        >
+        <h2 className="text-xl text-purple-800 mb-4">
           Discover mutual feelings — Only at Poornima University
         </h2>
-        <p style={{ color: "#374151", marginBottom: "2rem", fontSize: "1rem" }}>
+        <p className="text-gray-700 mb-8 text-base">
           Secretly like someone? Let’s find out if they feel the same — anonymously and securely.
         </p>
 
         <button
           onClick={handleGetStarted}
-          style={{
-            padding: "1rem 2rem",
-            fontSize: "1rem",
-            backgroundColor: "#ec4899",
-            color: "#fff",
-            border: "none",
-            borderRadius: "999px",
-            cursor: "pointer",
-          }}
+          className="px-8 py-4 text-base bg-pink-400 text-white rounded-full hover:bg-pink-500 transition"
         >
           💫 Get Started
         </button>
 
-        <p
-          style={{
-            marginTop: "1.5rem",
-            fontStyle: "italic",
-            color: "#9ca3af",
-            fontSize: "0.9rem",
-          }}
-        >
+        <p className="mt-6 italic text-gray-400 text-sm">
           🔒 100% anonymous. Revealed only if both crush ❤️
         </p>
       </div>
