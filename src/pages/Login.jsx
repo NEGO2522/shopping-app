@@ -9,6 +9,8 @@ import {
   isSignInWithEmailLink,
   signInWithEmailLink
 } from "firebase/auth";
+import { ref, get } from "firebase/database";
+import { db } from "../firebase";
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -36,6 +38,28 @@ function LoginSignup() {
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
 
+  // Check if user data exists in database
+  const checkUserExists = async (uid) => {
+    try {
+      const userRef = ref(db, 'users/' + uid);
+      const snapshot = await get(userRef);
+      return snapshot.exists();
+    } catch (error) {
+      console.error("Error checking user existence:", error);
+      return false;
+    }
+  };
+
+  // Handle successful authentication
+  const handleAuthSuccess = async (user) => {
+    const userExists = await checkUserExists(user.uid);
+    if (userExists) {
+      navigate('/home');
+    } else {
+      navigate('/user-details');
+    }
+  };
+
   // Check if the user is completing email sign in
   React.useEffect(() => {
     if (isSignInWithEmailLink(auth, window.location.href)) {
@@ -45,9 +69,9 @@ function LoginSignup() {
       }
 
       signInWithEmailLink(auth, emailFromStorage, window.location.href)
-        .then((result) => {
+        .then(async (result) => {
           window.localStorage.removeItem('emailForSignIn');
-          navigate('/user-details');
+          await handleAuthSuccess(result.user);
         })
         .catch((error) => {
           setError(error.message);
@@ -77,7 +101,7 @@ function LoginSignup() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       console.log("Logged in successfully!", userCredential.user);
-      navigate('/user-details');
+      await handleAuthSuccess(userCredential.user);
     } catch (error) {
       console.error("Error during login:", error.message);
       alert(error.message);
@@ -93,7 +117,7 @@ function LoginSignup() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
       console.log("Signed up successfully!", userCredential.user);
-      navigate('/user-details');
+      await handleAuthSuccess(userCredential.user);
     } catch (error) {
       console.error("Error during sign up:", error.message);
       alert(error.message);
@@ -104,9 +128,9 @@ function LoginSignup() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google sign-in successful!", result.user);
-      navigate('/user-details');
+      await handleAuthSuccess(result.user);
     } catch (error) {
-      console.error("Error during Google sign-in:", error.message);
+      console.error("Error during Google sign-in:", error);
       setError(error.message);
     }
   };

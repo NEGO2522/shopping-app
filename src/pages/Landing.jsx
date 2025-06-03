@@ -28,14 +28,10 @@ function Landing() {
         <div className="mt-33">
         <button
           onClick={handleGetStarted}
-          className="px-8 py-4 w-50 text-base bg-pink-400 text-white rounded-full hover:bg-pink-500 transition"
+          className="px-8 py-4 w-50 font-bold text-base bg-pink-400 text-white rounded-full hover:bg-pink-500 transition"
         >
           Get Started
         </button>
-
-        <p className="mt-3 italic text-gray-400 text-sm">
-          🔒 100% anonymous. Revealed only if both crush 
-        </p>
         </div>
       </div>
     </div>
