@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
 import Login from './pages/login';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar'; // Import Sidebar here to render globally
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 function App() {
@@ -26,18 +27,42 @@ function App() {
 
   return (
     <Router>
+      <MainRoutes user={user} />
+    </Router>
+  );
+}
+
+function MainRoutes({ user }) {
+  const location = useLocation();
+  const hideNavbarRoutes = ['/']; // routes where Navbar & Sidebar are hidden
+
+  // Add sidebar state here
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Toggle function
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
+
+  return (
+    <>
+      {!hideNavbarRoutes.includes(location.pathname) && (
+        <>
+          <Navbar toggleSidebar={toggleSidebar} user={user} />
+          <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        </>
+      )}
+
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route 
-          path="/home" 
-          element={user ? <Home /> : <Navigate to="/login" />} 
+        <Route
+          path="/home"
+          element={user ? <Home /> : <Navigate to="/login" />}
         />
-        <Route 
-          path="/login" 
-          element={user ? <Navigate to="/home" /> : <Login />} 
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/home" /> : <Login />}
         />
       </Routes>
-    </Router>
+    </>
   );
 }
 
