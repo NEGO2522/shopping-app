@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
 function Home() {
@@ -9,9 +8,11 @@ function Home() {
   return (
     <div className="h-screen overflow-hidden bg-violet-50 relative">
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-      <div className="w-full h-18">
-      <Navbar toggleSidebar={toggleSidebar} />
-      </div>
+
+      {/* Remove this Navbar, it's already in App.js */}
+      {/* <div className="w-full h-18">
+        <Navbar toggleSidebar={toggleSidebar} />
+      </div> */}
 
       <div className="h-[calc(100vh-4.5rem)] flex items-center justify-center px-6">
         <div className="max-w-xl bg-white p-8 rounded-xl shadow-lg text-center">

@@ -6,8 +6,6 @@ import Login from './pages/login';
 import Navbar from './components/Navbar';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
-
-
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
