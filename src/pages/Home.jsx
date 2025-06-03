@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { ref, get, push, set } from "firebase/database";
+import { FiSearch } from 'react-icons/fi';
 
 function Home() {
   const navigate = useNavigate();
@@ -10,6 +11,30 @@ function Home() {
   const [error, setError] = useState(null);
   const [currentUserData, setCurrentUserData] = useState(null);
   const [sentCrushes, setSentCrushes] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter profiles based on search query
+  const filteredProfiles = profiles.filter(profile => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      profile.name.toLowerCase().includes(searchLower) ||
+      profile.branch.toLowerCase().includes(searchLower)
+    );
+  });
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -133,15 +158,67 @@ function Home() {
   return (
     <div className="min-h-screen bg-violet-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-       
-       
-      
+        {/* Search Bar */}
+        <div className="mb-8 relative" ref={searchRef}>
+          <div className="max-w-2xl mx-auto">
+            <div className="relative flex items-center">
+              <FiSearch className="absolute left-3 text-gray-400 text-xl" />
+              <input
+                type="text"
+                placeholder="Search people..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+              />
+            </div>
 
-        {/* Profiles Grid */}
+            {/* Search Dropdown */}
+            {showDropdown && searchQuery && (
+              <div className="absolute z-50 w-167 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+                {filteredProfiles.length > 0 ? (
+                  filteredProfiles.map((profile) => (
+                    <div
+                      key={profile.uid}
+                      className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setShowDropdown(false);
+                        // Scroll to the profile card
+                        document.getElementById(`profile-${profile.uid}`)?.scrollIntoView({
+                          behavior: 'smooth',
+                          block: 'center'
+                        });
+                      }}
+                    >
+                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 flex-shrink-0">
+                        {profile.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-900">{profile.name}</p>
+                        <p className="text-xs text-gray-500">{profile.branch}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-4 py-3 text-sm text-gray-500">
+                    No results found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Profile Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {profiles.map((profile) => (
             <div
               key={profile.uid}
+              id={`profile-${profile.uid}`}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
               {/* Profile Card Header */}
