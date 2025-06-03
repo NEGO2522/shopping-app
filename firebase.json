@@ -43,5 +43,9 @@
       "firebase-debug.*.log",
       "functions"
     ]
+  },
+  "functions": {
+    "predeploy": [],
+    "source": "functions"
   }
 }

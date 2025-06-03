@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
-import { ref, get } from "firebase/database";
+import { ref, get, push, set } from "firebase/database";
 
 function Home() {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentUserData, setCurrentUserData] = useState(null);
+  const [sentCrushes, setSentCrushes] = useState({});
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -16,6 +18,20 @@ function Home() {
         if (!currentUser) {
           navigate('/login');
           return;
+        }
+
+        // Fetch current user's data first
+        const currentUserRef = ref(db, `users/${currentUser.uid}`);
+        const currentUserSnapshot = await get(currentUserRef);
+        if (currentUserSnapshot.exists()) {
+          setCurrentUserData(currentUserSnapshot.val());
+        }
+
+        // Fetch sent crushes
+        const sentCrushesRef = ref(db, `sentCrushes/${currentUser.uid}`);
+        const sentCrushesSnapshot = await get(sentCrushesRef);
+        if (sentCrushesSnapshot.exists()) {
+          setSentCrushes(sentCrushesSnapshot.val());
         }
 
         const usersRef = ref(db, 'users');
@@ -39,6 +55,64 @@ function Home() {
 
     fetchProfiles();
   }, [navigate]);
+
+  const handleSendCrush = async (profile) => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser || !currentUserData) {
+        navigate('/login');
+        return;
+      }
+
+      // Create notification in the database
+      const safeEmail = profile.email.replace(/\./g, ',');
+      const notificationRef = ref(db, `userNotifications/${safeEmail}/notifications`);
+      const newNotification = {
+        message: "Somebody has a crush on you! 💘",
+        timestamp: Date.now(),
+        fromUserId: currentUser.uid,
+        fromUserEmail: currentUserData.email,
+        fromUserName: currentUserData.name,
+        toUserEmail: profile.email,
+        toUserId: profile.uid,
+        toUserName: profile.name,
+        read: false
+      };
+
+      // Push the notification
+      await push(notificationRef, newNotification);
+
+      // Record that this user has sent a crush
+      const sentCrushRef = ref(db, `sentCrushes/${currentUser.uid}/${profile.uid}`);
+      await set(sentCrushRef, {
+        timestamp: Date.now(),
+        targetUserId: profile.uid,
+        targetUserEmail: profile.email,
+        targetUserName: profile.name
+      });
+
+      // Update local state
+      setSentCrushes(prev => ({
+        ...prev,
+        [profile.uid]: {
+          timestamp: Date.now(),
+          targetUserId: profile.uid,
+          targetUserEmail: profile.email,
+          targetUserName: profile.name
+        }
+      }));
+
+      // Show success message
+      alert("Crush sent successfully! 💌");
+    } catch (err) {
+      console.error("Error sending crush:", err);
+      alert("Failed to send crush. Please try again.");
+    }
+  };
+
+  const hasSentCrush = (profileId) => {
+    return sentCrushes[profileId] !== undefined;
+  };
 
   if (loading) {
     return (
@@ -102,13 +176,15 @@ function Home() {
 
                 {/* Action Button */}
                 <button
-                  className="mt-4 w-full bg-violet-100 text-violet-700 px-4 py-2 rounded-md hover:bg-violet-200 transition-colors duration-200 font-medium"
-                  onClick={() => {
-                    // TODO: Implement crush functionality
-                    console.log("Send crush to:", profile.name);
-                  }}
+                  className={`mt-4 w-full px-4 py-2 rounded-md transition-colors duration-200 font-medium cursor-pointer ${
+                    hasSentCrush(profile.uid)
+                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed cursor-pointer'
+                      : 'bg-violet-100 text-violet-700 hover:bg-violet-200 cursor-pointer'
+                  }`}
+                  onClick={() => handleSendCrush(profile)}
+                  disabled={hasSentCrush(profile.uid)}
                 >
-                  💌 Send Crush
+                  {hasSentCrush(profile.uid) ? '💝 Crush Sent' : '💌 Send Crush'}
                 </button>
               </div>
             </div>

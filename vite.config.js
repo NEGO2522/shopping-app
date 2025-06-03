@@ -13,15 +13,17 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/database', 'firebase/analytics']
-        }
+        manualChunks: undefined
       }
     }
   },
   server: {
     port: 3000,
     open: true
+  },
+  publicDir: 'public',
+  worker: {
+    format: 'es',
+    plugins: []
   }
 })
