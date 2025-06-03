@@ -10,10 +10,20 @@ function Home() {
   };
 
   return (
-    <div style={{ height: "100vh", overflow: "hidden", backgroundColor: "#f9f5ff" }}>
+    <div
+      style={{
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "#f9f5ff",
+      }}
+    >
       {/* Navbar */}
       <div
         style={{
+          position: "absolute",
+          top: "0",
+          left: "50%",
+          transform: "translateX(-50%)",
           width: "50%",
           height: "4.5rem",
           backgroundColor: "white",
@@ -60,8 +70,12 @@ function Home() {
               cursor: "pointer",
               transition: "background-color 0.3s",
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4338ca")}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#4f46e5")}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.backgroundColor = "#4338ca")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.backgroundColor = "#4f46e5")
+            }
           >
             Login
           </button>
@@ -84,9 +98,19 @@ function Home() {
           zIndex: 999,
         }}
       >
-        <div style={{ fontSize: "1.2rem", marginBottom: "1.5rem", fontWeight: "bold" }}>💘</div>
+        <div
+          style={{
+            fontSize: "1.2rem",
+            marginBottom: "1.5rem",
+            fontWeight: "bold",
+          }}
+        >
+          💘
+        </div>
 
-        <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
           {/* Top menu items */}
           <ul
             style={{
@@ -109,7 +133,8 @@ function Home() {
                   fontSize: "1rem",
                 }}
                 onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)")
+                  (e.currentTarget.style.backgroundColor =
+                    "rgba(255, 255, 255, 0.1)")
                 }
                 onMouseOut={(e) =>
                   (e.currentTarget.style.backgroundColor = "transparent")
@@ -133,7 +158,12 @@ function Home() {
                 color: "#ffffff",
               }}
             >
-              {["ℹ️ About Us", "⚙️ Settings", "📞 Contact", "📧 Contact Us"].map((item, index) => (
+              {[
+                "ℹ️ About Us",
+                "⚙️ Settings",
+                "📞 Contact",
+                "📧 Contact Us",
+              ].map((item, index) => (
                 <li
                   key={index}
                   style={{
@@ -143,7 +173,8 @@ function Home() {
                     fontSize: "0.85rem",
                   }}
                   onMouseOver={(e) =>
-                    (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)")
+                    (e.currentTarget.style.backgroundColor =
+                      "rgba(255, 255, 255, 0.1)")
                   }
                   onMouseOut={(e) =>
                     (e.currentTarget.style.backgroundColor = "transparent")
@@ -177,12 +208,14 @@ function Home() {
             textAlign: "center",
           }}
         >
-          <h1 style={{ fontSize: "2rem", color: "#4f46e5", marginBottom: "1rem" }}>
+          <h1
+            style={{ fontSize: "2rem", color: "#4f46e5", marginBottom: "1rem" }}
+          >
             💖 Welcome to Crush Finder!
           </h1>
           <p style={{ color: "#4b5563", marginBottom: "1.5rem" }}>
-            Secretly like someone at Poornima University? Tap “Send Crush” — and if they like you
-            back, it’s a match made in PU! 💫
+            Secretly like someone at Poornima University? Tap “Send Crush” — and
+            if they like you back, it’s a match made in PU! 💫
           </p>
 
           <div
@@ -193,7 +226,8 @@ function Home() {
               color: "#374151",
             }}
           >
-            💡 Tip: No one sees your crush unless it’s mutual. 100% private and fun!
+            💡 Tip: No one sees your crush unless it’s mutual. 100% private and
+            fun!
           </div>
         </div>
       </div>
