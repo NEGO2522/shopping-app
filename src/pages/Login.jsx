@@ -28,7 +28,7 @@ function LoginSignup() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
       console.log("Logged in successfully!", userCredential.user);
-      navigate('/home');
+      navigate('/user-details');
     } catch (error) {
       console.error("Error during login:", error.message);
       alert(error.message);
@@ -44,7 +44,7 @@ function LoginSignup() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword);
       console.log("Signed up successfully!", userCredential.user);
-      navigate('/home');
+      navigate('/user-details');
     } catch (error) {
       console.error("Error during sign up:", error.message);
       alert(error.message);
@@ -55,7 +55,7 @@ function LoginSignup() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       console.log("Google sign-in successful!", result.user);
-      navigate('/home');
+      navigate('/user-details');
     } catch (error) {
       console.error("Error during Google sign-in:", error.message);
       alert(error.message);

@@ -1,6 +1,11 @@
 import React, { useState } from "react";
-
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "../firebase"; // Adjust the import based on your firebase config
 function Home() {
+  const navigate = useNavigate();
+
+
 
   return (
     <div className="h-full overflow-hidden bg-violet-50 relative">

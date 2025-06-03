@@ -5,7 +5,7 @@ function Landing() {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/home");
+    navigate("/login");
   };
 
   return (
@@ -18,7 +18,7 @@ function Landing() {
           Discover mutual feelings — Only at Poornima University
         </h2>
         <p className="text-gray-700 mb-8 text-base">
-          Secretly like someone? Let’s find out if they feel the same — anonymously and securely.
+          Secretly like someone? Let's find out if they feel the same — anonymously and securely.
         </p>
 
         <button

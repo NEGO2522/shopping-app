@@ -1,10 +1,13 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0r1tQCDEq0G8W0EN7mD9drea4cBFiEKs",
   authDomain: "campus-crush-cbfed.firebaseapp.com",
+  databaseURL: "https://campus-crush-cbfed-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "campus-crush-cbfed",
   storageBucket: "campus-crush-cbfed.firebasestorage.app",
   messagingSenderId: "989715437143",
@@ -15,5 +18,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const database = getDatabase(app);
+const auth = getAuth(app);
 
-export { app, analytics };
+export { app, analytics, database as db, auth };

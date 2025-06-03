@@ -2,10 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing';
 import Home from './pages/Home';
-import Login from './pages/login';
+import Login from './pages/Login';
+import UserDetailsForm from './pages/UserDetailsForm';
+import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar'; // Import Sidebar here to render globally
+import ProtectedRoute from './components/ProtectedRoute';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { ref, get } from 'firebase/database';
+import { db } from './firebase';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -34,13 +39,39 @@ function App() {
 
 function MainRoutes({ user }) {
   const location = useLocation();
-  const hideNavbarRoutes = ['/']; // routes where Navbar & Sidebar are hidden
+  const hideNavbarRoutes = ['/','/user-details','/login']; // routes where Navbar & Sidebar are hidden
 
   // Add sidebar state here
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasUserDetails, setHasUserDetails] = useState(false);
+  const [checkingDetails, setCheckingDetails] = useState(true);
+
+  useEffect(() => {
+    const checkUserDetails = async () => {
+      if (!user) {
+        setCheckingDetails(false);
+        return;
+      }
+
+      try {
+        const userRef = ref(db, 'users/' + user.uid);
+        const snapshot = await get(userRef);
+        setHasUserDetails(snapshot.exists());
+      } catch (error) {
+        console.error("Error checking user details:", error);
+      }
+      setCheckingDetails(false);
+    };
+
+    checkUserDetails();
+  }, [user]);
 
   // Toggle function
   const toggleSidebar = () => setSidebarOpen(prev => !prev);
+
+  if (checkingDetails) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -55,11 +86,33 @@ function MainRoutes({ user }) {
         <Route path="/" element={<Landing />} />
         <Route
           path="/home"
-          element={user ? <Home /> : <Navigate to="/login" />}
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/login"
-          element={user ? <Navigate to="/home" /> : <Login />}
+          element={
+            user 
+              ? (hasUserDetails 
+                  ? <Navigate to="/home" /> 
+                  : <Navigate to="/user-details" />)
+              : <Login />
+          }
+        />
+        <Route 
+          path="/user-details" 
+          element={user ? <UserDetailsForm /> : <Navigate to="/login" />} 
         />
       </Routes>
     </>
