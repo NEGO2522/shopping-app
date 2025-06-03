@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
 function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -10,9 +11,9 @@ function Home() {
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* Remove this Navbar, it's already in App.js */}
-      {/* <div className="w-full h-18">
+      <div className="w-full h-18">
         <Navbar toggleSidebar={toggleSidebar} />
-      </div> */}
+      </div>
 
       <div className="h-[calc(100vh-4.5rem)] flex items-center justify-center px-6">
         <div className="max-w-xl bg-white p-8 rounded-xl shadow-lg text-center">

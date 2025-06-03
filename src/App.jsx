@@ -26,7 +26,6 @@ function App() {
 
   return (
     <Router>
-      <Navbar user={user} />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route 
