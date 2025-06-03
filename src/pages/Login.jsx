@@ -1,17 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { app } from "../firebase";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink
+} from "firebase/auth";
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Use these auth methods in your login/signup handlers
-
+const actionCodeSettings = {
+  url: window.location.origin + '/login',
+  handleCodeInApp: true,
+};
 
 function LoginSignup() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Login state
   const [loginEmail, setLoginEmail] = useState("");
@@ -22,6 +35,42 @@ function LoginSignup() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
+
+  // Check if the user is completing email sign in
+  React.useEffect(() => {
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let emailFromStorage = window.localStorage.getItem('emailForSignIn');
+      if (!emailFromStorage) {
+        emailFromStorage = window.prompt('Please provide your email for confirmation');
+      }
+
+      signInWithEmailLink(auth, emailFromStorage, window.location.href)
+        .then((result) => {
+          window.localStorage.removeItem('emailForSignIn');
+          navigate('/user-details');
+        })
+        .catch((error) => {
+          setError(error.message);
+        });
+    }
+  }, [navigate]);
+
+  const handlePasswordlessSignIn = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', email);
+      setEmailSent(true);
+    } catch (error) {
+      console.error("Error during passwordless sign in:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -58,7 +107,7 @@ function LoginSignup() {
       navigate('/user-details');
     } catch (error) {
       console.error("Error during Google sign-in:", error.message);
-      alert(error.message);
+      setError(error.message);
     }
   };
 
@@ -86,135 +135,72 @@ function LoginSignup() {
   };
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#f3f4f6",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        padding: "1rem",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "2rem",
-          borderRadius: "1rem",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          width: "100%",
-          maxWidth: "400px",
-          animation: "fadeIn 0.7s ease forwards",
-          opacity: 1,
-        }}
-        className="form-container"
-      >
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         {isLogin ? (
-          <form onSubmit={handleLogin}>
-            <h2
-              style={{
-                textAlign: "center",
-                marginBottom: "1.5rem",
-                fontSize: "1.5rem",
-                color: "#4f46e5",
-              }}
-            >
+          <div>
+            <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-8">
               Login to CampusCrush
             </h2>
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor="loginEmail"
-                style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}
-              >
-                Email
-              </label>
-              <input
-                id="loginEmail"
-                type="email"
-                value={loginEmail}
-                onChange={(e) => setLoginEmail(e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.5rem",
-                  fontSize: "1rem",
-                }}
-              />
+            {emailSent ? (
+              <div className="text-center p-4 bg-green-50 rounded-lg mb-4">
+                <p className="text-green-800">
+                  Check your email! We've sent you a sign-in link to {email}
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handlePasswordlessSignIn} className="space-y-6">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+                    {error}
+                  </div>
+                )}
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-violet-500 focus:border-violet-500"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {loading ? "Sending..." : "Send Sign-in Link"}
+                </button>
+              </form>
+            )}
+
+            {/* Divider */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
             </div>
 
-            <div style={{ marginBottom: "0.5rem" }}>
-              <label
-                htmlFor="loginPassword"
-                style={{ display: "block", marginBottom: "0.5rem", fontWeight: "600" }}
-              >
-                Password
-              </label>
-              <input
-                id="loginPassword"
-                type="password"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  border: "1px solid #d1d5db",
-                  borderRadius: "0.5rem",
-                  fontSize: "1rem",
-                }}
-              />
-            </div>
-
-            <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
-              <button
-                type="button"
-                onClick={() => alert("Redirect to Forgot Password flow")}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#4f46e5",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                  fontWeight: "600",
-                  textDecoration: "underline",
-                  padding: 0,
-                }}
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            <button
-              type="submit"
-              style={{
-                width: "100%",
-                padding: "0.75rem",
-                backgroundColor: "#4f46e5",
-                color: "white",
-                fontWeight: "600",
-                fontSize: "1rem",
-                border: "none",
-                borderRadius: "0.5rem",
-                cursor: "pointer",
-                transition: "background-color 0.3s ease",
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#4338ca")}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#4f46e5")}
-            >
-              Login
-            </button>
-
-            {/* Google button */}
+            {/* Google Sign In */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
               style={googleButtonStyle}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}
+              className="mt-4 hover:bg-gray-50"
             >
               <svg
                 style={googleIconStyle}
@@ -241,35 +227,20 @@ function LoginSignup() {
               Continue with Google
             </button>
 
-            <p style={{ marginTop: "1rem", textAlign: "center" }}>
+            <p className="mt-4 text-center text-sm text-gray-600">
               Don't have an account?{" "}
               <button
                 type="button"
                 onClick={() => setIsLogin(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#4f46e5",
-                  cursor: "pointer",
-                  fontWeight: "600",
-                  textDecoration: "underline",
-                  padding: 0,
-                }}
+                className="font-medium text-violet-600 hover:text-violet-500"
               >
                 Sign up
               </button>
             </p>
-          </form>
+          </div>
         ) : (
-          <form onSubmit={handleSignUp}>
-            <h2
-              style={{
-                textAlign: "center",
-                marginBottom: "1.5rem",
-                fontSize: "1.5rem",
-                color: "#4f46e5",
-              }}
-            >
+          <div>
+            <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-8">
               Create an Account
             </h2>
 
@@ -436,7 +407,7 @@ function LoginSignup() {
                 Login
               </button>
             </p>
-          </form>
+          </div>
         )}
       </div>
     </div>
