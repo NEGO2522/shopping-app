@@ -139,6 +139,16 @@ function Home() {
     return sentCrushes[profileId] !== undefined;
   };
 
+  // Check if crush button should be shown
+  const shouldShowCrushButton = (profile) => {
+    if (!currentUserData || !profile) return false;
+    return currentUserData.gender !== profile.gender;
+  };
+
+  const handleProfileClick = (profileId) => {
+    navigate(`/profile/${profileId}`);
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-violet-50">
@@ -187,11 +197,7 @@ function Home() {
                       onClick={() => {
                         setSearchQuery('');
                         setShowDropdown(false);
-                        // Scroll to the profile card
-                        document.getElementById(`profile-${profile.uid}`)?.scrollIntoView({
-                          behavior: 'smooth',
-                          block: 'center'
-                        });
+                        handleProfileClick(profile.uid);
                       }}
                     >
                       <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 flex-shrink-0">
@@ -221,8 +227,10 @@ function Home() {
               id={`profile-${profile.uid}`}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
-              {/* Profile Card Header */}
-              <div className="bg-violet-600 px-4 py-3">
+              <div 
+                className="bg-violet-600 px-4 py-3 cursor-pointer"
+                onClick={() => handleProfileClick(profile.uid)}
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700">
                     {profile.name.charAt(0).toUpperCase()}
@@ -234,7 +242,6 @@ function Home() {
                 </div>
               </div>
 
-              {/* Profile Card Body */}
               <div className="p-4">
                 <div className="space-y-2">
                   <div>
@@ -251,18 +258,22 @@ function Home() {
                   </div>
                 </div>
 
-                {/* Action Button */}
-                <button
-                  className={`mt-4 w-full px-4 py-2 rounded-md transition-colors duration-200 font-medium cursor-pointer ${
-                    hasSentCrush(profile.uid)
-                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed cursor-pointer'
-                      : 'bg-violet-100 text-violet-700 hover:bg-violet-200 cursor-pointer'
-                  }`}
-                  onClick={() => handleSendCrush(profile)}
-                  disabled={hasSentCrush(profile.uid)}
-                >
-                  {hasSentCrush(profile.uid) ? '💝 Crush Sent' : '💌 Send Crush'}
-                </button>
+                {shouldShowCrushButton(profile) && (
+                  <button
+                    className={`mt-4 w-full px-4 py-2 rounded-md transition-colors duration-200 font-medium cursor-pointer ${
+                      hasSentCrush(profile.uid)
+                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed cursor-pointer'
+                        : 'bg-violet-100 text-violet-700 hover:bg-violet-200 cursor-pointer'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendCrush(profile);
+                    }}
+                    disabled={hasSentCrush(profile.uid)}
+                  >
+                    {hasSentCrush(profile.uid) ? '💝 Crush Sent' : '💌 Send Crush'}
+                  </button>
+                )}
               </div>
             </div>
           ))}

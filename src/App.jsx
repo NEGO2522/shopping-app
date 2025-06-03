@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import UserDetailsForm from './pages/UserDetailsForm';
 import Profile from './pages/Profile';
 import Notification from './pages/Notification';
+import ProfileDetail from './pages/ProfileDetail';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar'; // Import Sidebar here to render globally
 import ProtectedRoute from './components/ProtectedRoute';
@@ -122,6 +123,14 @@ function MainRoutes({ user }) {
         <Route 
           path="/user-details" 
           element={user ? <UserDetailsForm /> : <Navigate to="/login" />} 
+        />
+        <Route
+          path="/profile/:userId"
+          element={
+            <ProtectedRoute>
+              <ProfileDetail />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </>
