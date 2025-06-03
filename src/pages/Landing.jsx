@@ -9,28 +9,34 @@ function Landing() {
   };
 
   return (
-    <div className="h-screen w-full flex justify-center items-center bg-pink-50">
-      <div className="max-w-xl text-center p-8 bg-white rounded-3xl shadow-2xl">
-        <h1 className="text-4xl font-bold text-pink-700 mb-4">
-          💘 Welcome to CrushConnect
+    <div className="h-screen w-full flex justify-center items-center">
+      <div className="w-4xl text-center h-130 p-8 bg-white rounded-3xl shadow-2xl">
+        <h1 className="text-5xl font-bold text-blue-700 mb-4">
+          Welcome to Campus Crush
         </h1>
-        <h2 className="text-xl text-purple-800 mb-4">
-          Discover mutual feelings — Only at Poornima University
-        </h2>
-        <p className="text-gray-700 mb-8 text-base">
-          Secretly like someone? Let's find out if they feel the same — anonymously and securely.
+        <div className="mt-20">
+        <h2 className="text-3xl font-bold text-black pb-4">Find out: </h2>
+        <p className="text-gray-700 text-xl pb-3  ">
+          If someone has a crush on you!
         </p>
+        <p className="text-gray-700 mb-8 text-xl">
+        If your crush likes you back – secretly.
+        </p>
+        
+        </div>
 
+        <div className="mt-33">
         <button
           onClick={handleGetStarted}
-          className="px-8 py-4 text-base bg-pink-400 text-white rounded-full hover:bg-pink-500 transition"
+          className="px-8 py-4 w-50 text-base bg-pink-400 text-white rounded-full hover:bg-pink-500 transition"
         >
-          💫 Get Started
+          Get Started
         </button>
 
-        <p className="mt-6 italic text-gray-400 text-sm">
-          🔒 100% anonymous. Revealed only if both crush ❤️
+        <p className="mt-3 italic text-gray-400 text-sm">
+          🔒 100% anonymous. Revealed only if both crush 
         </p>
+        </div>
       </div>
     </div>
   );
