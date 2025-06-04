@@ -1,18 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { ref, set, get } from 'firebase/database';
 
+// Memoize the InputField component to prevent unnecessary re-renders
+const InputField = memo(({ label, type = "text", value, onChange, placeholder, options }) => (
+  <div className="space-y-1">
+    <label className="block text-sm font-medium text-gray-700">
+      {label}
+    </label>
+    {type === "select" ? (
+      <select
+        value={value}
+        onChange={onChange}
+        required
+        className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white transition-all duration-200"
+      >
+        <option value="">{placeholder}</option>
+        {options?.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    ) : (
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        required
+        placeholder={placeholder}
+        className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200"
+      />
+    )}
+  </div>
+));
+
+// Add display name for the memoized component
+InputField.displayName = 'InputField';
+
 const UserDetailsForm = () => {
-  const [name, setName] = useState('');
-  const [gender, setGender] = useState('');
-  const [year, setYear] = useState('');
-  const [branch, setBranch] = useState('');
-  const [residence, setResidence] = useState('');
-  const [bio, setBio] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    gender: '',
+    year: '',
+    branch: '',
+    residence: '',
+    bio: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (field) => (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,6 +71,7 @@ const UserDetailsForm = () => {
       return;
     }
 
+    const { name, gender, year, branch, residence, bio } = formData;
     if (!name || !gender || !year || !branch || !residence || !bio) {
       setError("Please fill all fields.");
       setLoading(false);
@@ -34,7 +80,6 @@ const UserDetailsForm = () => {
 
     try {
       console.log("Starting data save process...");
-      // Create a reference to the user's data location
       const userRef = ref(db, 'users/' + user.uid);
       
       const userData = {
@@ -53,18 +98,15 @@ const UserDetailsForm = () => {
       };
 
       console.log("Saving user data:", userData);
-      // Set the user data
       await set(userRef, userData);
       console.log("Data saved successfully");
       
-      // Verify the data was saved by reading it back
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
         const savedData = snapshot.val();
-        // Basic verification that required fields are present
         if (savedData.name && savedData.email && savedData.uid) {
           console.log("Data verification successful:", savedData);
-          setLoading(false); // Make sure to set loading to false before navigation
+          setLoading(false);
           console.log("Navigating to home page...");
           try {
             navigate('/home', { replace: true });
@@ -72,7 +114,7 @@ const UserDetailsForm = () => {
             console.error("Navigation failed, trying fallback:", navError);
             window.location.href = '/home';
           }
-          return; // Exit the function after navigation
+          return;
         } else {
           throw new Error("Data verification failed - missing required fields");
         }
@@ -86,150 +128,111 @@ const UserDetailsForm = () => {
     }
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "0.75rem",
-    marginBottom: "1rem",
-    border: "1px solid #d1d5db",
-    borderRadius: "0.5rem",
-    fontSize: "1rem",
-    outline: "none",
-    transition: "border-color 0.2s ease",
-  };
+  const yearOptions = [
+    { value: "1st Year", label: "1st Year" },
+    { value: "2nd Year", label: "2nd Year" },
+    { value: "3rd Year", label: "3rd Year" },
+    { value: "4th Year", label: "4th Year" }
+  ];
 
-  const labelStyle = {
-    display: "block",
-    marginBottom: "0.5rem",
-    fontSize: "0.875rem",
-    fontWeight: "500",
-    color: "#374151",
-  };
+  const genderOptions = [
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" }
+  ];
 
-  const buttonStyle = {
-    width: "100%",
-    padding: "0.75rem",
-    backgroundColor: "#4f46e5",
-    color: "white",
-    border: "none",
-    borderRadius: "0.5rem",
-    fontSize: "1rem",
-    fontWeight: "500",
-    cursor: loading ? "not-allowed" : "pointer",
-    opacity: loading ? "0.7" : "1",
-    transition: "background-color 0.2s ease",
-  };
+  const residenceOptions = [
+    { value: "Hostel", label: "Hostel" },
+    { value: "Outside", label: "Outside" }
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-6">
-          Complete Your Profile
-        </h2>
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-4">
-            {error}
-          </div>
-        )}
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 to-pink-50 flex items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      {/* Background Decoration */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-gradient-to-br from-violet-200 to-violet-300 opacity-20 blur-3xl transform rotate-12" />
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 opacity-20 blur-3xl transform -rotate-12" />
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label style={labelStyle}>Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={inputStyle}
-                required
-                placeholder="Enter your full name"
-              />
-            </div>
+      <div className="max-w-2xl w-full relative z-10">
+        {/* Logo Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-500 mb-2">
+            Complete Your Profile
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Let others know more about you
+          </p>
+        </div>
 
-            <div>
-              <label style={labelStyle}>Gender</label>
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                style={inputStyle}
-                required
+        {/* Form Card */}
+        <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl space-y-8 transform hover:scale-[1.01] transition-all duration-300">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InputField
+              label="Full Name"
+              value={formData.name}
+              onChange={handleChange('name')}
+              placeholder="Enter your full name"
+            />
+
+            <InputField
+              label="Gender"
+              type="select"
+              value={formData.gender}
+              onChange={handleChange('gender')}
+              placeholder="Select gender"
+              options={genderOptions}
+            />
+
+            <InputField
+              label="Year"
+              type="select"
+              value={formData.year}
+              onChange={handleChange('year')}
+              placeholder="Select year"
+              options={yearOptions}
+            />
+
+            <InputField
+              label="Branch / Department"
+              value={formData.branch}
+              onChange={handleChange('branch')}
+              placeholder="e.g., Computer Science"
+            />
+
+            <InputField
+              label="Residence"
+              type="select"
+              value={formData.residence}
+              onChange={handleChange('residence')}
+              placeholder="Select residence"
+              options={residenceOptions}
+            />
+
+            <InputField
+              label="Bio (one line)"
+              value={formData.bio}
+              onChange={handleChange('bio')}
+              placeholder="Tell us about yourself in one line"
+            />
+
+            <div className="md:col-span-2 mt-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 px-4 border border-transparent rounded-xl shadow-sm text-white bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-700 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 font-medium transform hover:scale-[1.02] transition-all duration-200 ${
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
+                {loading ? "Saving..." : "Complete Profile"}
+              </button>
             </div>
-
-            <div>
-              <label style={labelStyle}>Year</label>
-              <select
-                value={year}
-                onChange={(e) => setYear(e.target.value)}
-                style={inputStyle}
-                required
-              >
-                <option value="">Select year</option>
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={labelStyle}>Branch / Department</label>
-              <input
-                type="text"
-                value={branch}
-                onChange={(e) => setBranch(e.target.value)}
-                style={inputStyle}
-                required
-                placeholder="e.g., Computer Science"
-              />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Residence</label>
-              <select
-                value={residence}
-                onChange={(e) => setResidence(e.target.value)}
-                style={inputStyle}
-                required
-              >
-                <option value="">Select residence</option>
-                <option value="Hostel">Hostel</option>
-                <option value="Outside">Outside</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={labelStyle}>Bio (one line)</label>
-              <input
-                type="text"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                style={inputStyle}
-                required
-                placeholder="Tell us about yourself in one line"
-                maxLength={100}
-              />
-            </div>
-
-            <button
-              type="submit"
-              style={buttonStyle}
-              disabled={loading}
-              onMouseOver={(e) => {
-                if (!loading) e.currentTarget.style.backgroundColor = "#4338ca";
-              }}
-              onMouseOut={(e) => {
-                if (!loading) e.currentTarget.style.backgroundColor = "#4f46e5";
-              }}
-            >
-              {loading ? "Saving..." : "Submit and Continue"}
-            </button>
           </form>
         </div>
       </div>
