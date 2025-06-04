@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
 import { db } from './firebase';
+import MyCrushes from './pages/MyCrushes';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -129,6 +130,14 @@ function MainRoutes({ user }) {
           element={
             <ProtectedRoute>
               <ProfileDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-crushes"
+          element={
+            <ProtectedRoute>
+              <MyCrushes />
             </ProtectedRoute>
           }
         />

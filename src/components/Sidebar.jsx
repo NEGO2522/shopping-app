@@ -58,7 +58,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             </li>
             <li>
               <Link
-                to="/my-crush"
+                to="/my-crushes"
                 onClick={() => setSidebarOpen(false)}
                 className="block border-b border-white/30 cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
               >
