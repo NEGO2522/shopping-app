@@ -171,51 +171,53 @@ function Home() {
         {/* Search Bar */}
         <div className="mb-8 relative" ref={searchRef}>
           <div className="max-w-2xl mx-auto">
-            <div className="relative flex items-center">
-              <FiSearch className="absolute left-3 text-gray-400 text-xl" />
-              <input
-                type="text"
-                placeholder="Search people..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowDropdown(true);
-                }}
-                onFocus={() => setShowDropdown(true)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-              />
-            </div>
-
-            {/* Search Dropdown */}
-            {showDropdown && searchQuery && (
-              <div className="absolute z-50 w-167 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
-                {filteredProfiles.length > 0 ? (
-                  filteredProfiles.map((profile) => (
-                    <div
-                      key={profile.uid}
-                      className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setShowDropdown(false);
-                        handleProfileClick(profile.uid);
-                      }}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 flex-shrink-0">
-                        {profile.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-900">{profile.name}</p>
-                        <p className="text-xs text-gray-500">{profile.branch}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="px-4 py-3 text-sm text-gray-500">
-                    No results found
-                  </div>
-                )}
+            <div className="relative">
+              <div className="relative flex items-center">
+                <FiSearch className="absolute left-3 text-gray-400 text-xl" />
+                <input
+                  type="text"
+                  placeholder="Search people..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                />
               </div>
-            )}
+
+              {/* Search Dropdown */}
+              {showDropdown && searchQuery && (
+                <div className="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+                  {filteredProfiles.length > 0 ? (
+                    filteredProfiles.map((profile) => (
+                      <div
+                        key={profile.uid}
+                        className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => {
+                          setSearchQuery('');
+                          setShowDropdown(false);
+                          handleProfileClick(profile.uid);
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 flex-shrink-0">
+                          {profile.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">{profile.name}</p>
+                          <p className="text-xs text-gray-500">{profile.branch}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      No results found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
