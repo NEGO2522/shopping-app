@@ -220,7 +220,7 @@ function MyCrushes() {
               You haven't sent any crushes yet. Start exploring profiles and connect with people!
             </p>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
               className="mt-6 px-6 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors duration-200"
             >
               Explore Profiles
