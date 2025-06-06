@@ -14,6 +14,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { ref, get } from 'firebase/database';
 import { db } from './firebase';
 import MyCrushes from './pages/MyCrushes';
+import MyPosts from './pages/MyPosts';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -138,6 +139,14 @@ function MainRoutes({ user }) {
           element={
             <ProtectedRoute>
               <MyCrushes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-posts"
+          element={
+            <ProtectedRoute>
+              <MyPosts />
             </ProtectedRoute>
           }
         />
