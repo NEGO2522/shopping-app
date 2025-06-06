@@ -151,9 +151,9 @@ const Profile = () => {
         {/* Card */}
         <div className="bg-white/80 rounded-2xl shadow-2xl p-8 relative">
           {/* Top Section: Avatar, Name, Email, Edit Button */}
-          <div className="flex flex-col md:flex-row items-center justify-between mb-10">
-            <div className="flex items-center gap-6 relative">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-violet-300 to-blue-200 flex items-center justify-center text-5xl font-extrabold text-violet-700 shadow-lg border-4 border-white overflow-hidden relative">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-10 w-full">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative w-full md:w-auto">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 rounded-full bg-gradient-to-br from-violet-300 to-blue-200 flex items-center justify-center text-4xl sm:text-5xl font-extrabold text-violet-700 shadow-lg border-4 border-white overflow-hidden relative">
                 {profileImage && editMode ? (
                   <img
                     src={profileImage}
@@ -186,12 +186,12 @@ const Profile = () => {
                   </label>
                 )}
               </div>
-              <div>
-                <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{userData?.name}</h2>
-                <p className="text-gray-500 text-lg">{userData?.email}</p>
+              <div className="text-center sm:text-left max-w-full">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight break-words">{userData?.name}</h2>
+                <p className="text-gray-500 text-base sm:text-lg break-all">{userData?.email}</p>
               </div>
             </div>
-            <div className="mt-6 md:mt-0">
+            <div className="mt-6 md:mt-0 w-full md:w-auto flex justify-center md:justify-end">
               {editMode ? (
                 <div className="flex gap-3">
                   <button
@@ -322,24 +322,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Email Section */}
-          <div className="mt-10 flex items-center bg-gradient-to-r from-blue-100 via-purple-100 to-yellow-100 rounded-xl p-5 shadow-inner">
-            <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center text-blue-600 font-extrabold mr-5 shadow">
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 12H8m8 0a4 4 0 11-8 0 4 4 0 018 0zm0 0v1a4 4 0 01-8 0v-1"></path>
-              </svg>
-            </div>
-            <div>
-              <div className="text-lg font-semibold text-gray-900">{userData?.email}</div>
-              <div className="text-gray-500 text-sm">
-                {userData?.createdAt ? (
-                  <>
-                    {Math.floor((Date.now() - new Date(userData.createdAt)) / (1000 * 60 * 60 * 24))} days ago
-                  </>
-                ) : null}
-              </div>
-            </div>
-          </div>
+         
         </div>
       </div>
     </div>
