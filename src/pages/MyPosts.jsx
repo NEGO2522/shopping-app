@@ -202,8 +202,8 @@ function MyPosts() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 rounded-full bg-violet-200 flex items-center justify-center text-xl font-bold text-violet-700">
-                      {getCurrentNickname()}
+                    <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center">
+                      <span className="text-2xl text-violet-600">U</span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
