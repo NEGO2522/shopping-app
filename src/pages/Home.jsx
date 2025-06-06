@@ -140,13 +140,16 @@ function Home() {
         targetUserName: profile.name
       });
 
-      // Check for mutual crush and send special notification if it exists
-      if (receivedCrushes[profile.uid]) {
-        // Send mutual crush notification to both users
+      // Check if this creates a mutual crush
+      const theirCrushRef = ref(db, `sentCrushes/${profile.uid}/${currentUser.uid}`);
+      const theirCrushSnapshot = await get(theirCrushRef);
+      
+      if (theirCrushSnapshot.exists()) {
+        // It's a mutual crush! Send special notifications to both users
         const mutualNotification = {
+          type: "mutual_crush",
           message: "🎉 You have a mutual crush! Time to connect! 💘",
           timestamp: Date.now(),
-          type: "mutual_crush",
           read: false
         };
 
@@ -166,6 +169,17 @@ function Home() {
           withUserId: currentUser.uid,
           withUserEmail: currentUserData.email
         });
+
+        // Update local state for immediate UI update
+        setReceivedCrushes(prev => ({
+          ...prev,
+          [profile.uid]: {
+            timestamp: Date.now(),
+            targetUserId: currentUser.uid,
+            targetUserEmail: currentUserData.email,
+            targetUserName: currentUserData.name
+          }
+        }));
       }
 
       // Update local state
@@ -192,7 +206,13 @@ function Home() {
   };
 
   const hasMutualCrush = (profileId) => {
-    return hasSentCrush(profileId) && receivedCrushes[profileId] !== undefined;
+    // Check if current user has sent a crush to this profile
+    const hasSentCrush = sentCrushes[profileId] !== undefined;
+    
+    // Check if this profile has sent a crush to current user
+    const hasReceivedCrush = receivedCrushes[profileId] !== undefined;
+    
+    return hasSentCrush && hasReceivedCrush;
   };
 
   // Check if crush button should be shown

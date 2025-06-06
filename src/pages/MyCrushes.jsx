@@ -15,6 +15,16 @@ function MyCrushes() {
   const [receivedCrushes, setReceivedCrushes] = useState({});
   const [activeChatId, setActiveChatId] = useState(null);
 
+  const hasMutualCrush = (profileId) => {
+    // Check if current user has sent a crush to this profile
+    const hasSentCrush = sentCrushes[profileId] !== undefined;
+    
+    // Check if this profile has sent a crush to current user
+    const hasReceivedCrush = receivedCrushes[profileId] !== undefined;
+    
+    return hasSentCrush && hasReceivedCrush;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,23 +44,22 @@ function MyCrushes() {
         // Fetch sent crushes
         const sentCrushesRef = ref(db, `sentCrushes/${currentUser.uid}`);
         const sentCrushesSnapshot = await get(sentCrushesRef);
-        if (sentCrushesSnapshot.exists()) {
-          setSentCrushes(sentCrushesSnapshot.val());
-        }
+        const sentCrushesData = sentCrushesSnapshot.exists() ? sentCrushesSnapshot.val() : {};
+        setSentCrushes(sentCrushesData);
 
-        // Fetch received crushes
-        const receivedCrushesRef = ref(db, `sentCrushes`);
-        const receivedCrushesSnapshot = await get(receivedCrushesRef);
-        if (receivedCrushesSnapshot.exists()) {
-          const allCrushes = receivedCrushesSnapshot.val();
+        // Fetch received crushes - check who has sent crushes to current user
+        const allCrushesRef = ref(db, 'sentCrushes');
+        const allCrushesSnapshot = await get(allCrushesRef);
+        if (allCrushesSnapshot.exists()) {
+          const allCrushes = allCrushesSnapshot.val();
           const received = {};
           
+          // Look through all users' sent crushes
           Object.entries(allCrushes).forEach(([senderId, crushes]) => {
-            Object.entries(crushes).forEach(([targetId, crushData]) => {
-              if (targetId === currentUser.uid) {
-                received[senderId] = crushData;
-              }
-            });
+            // If someone has sent a crush to current user
+            if (crushes[currentUser.uid]) {
+              received[senderId] = crushes[currentUser.uid];
+            }
           });
           
           setReceivedCrushes(received);
@@ -62,7 +71,7 @@ function MyCrushes() {
         if (usersSnapshot.exists()) {
           const usersData = usersSnapshot.val();
           // Filter only the profiles where user has sent crushes
-          const sentCrushIds = Object.keys(sentCrushesSnapshot.exists() ? sentCrushesSnapshot.val() : {});
+          const sentCrushIds = Object.keys(sentCrushesData);
           const crushProfiles = Object.values(usersData).filter(
             user => sentCrushIds.includes(user.uid)
           );
@@ -79,10 +88,6 @@ function MyCrushes() {
 
     fetchData();
   }, [navigate]);
-
-  const hasMutualCrush = (profileId) => {
-    return sentCrushes[profileId] !== undefined && receivedCrushes[profileId] !== undefined;
-  };
 
   const handleProfileClick = (profileId) => {
     navigate(`/profile/${profileId}`);
