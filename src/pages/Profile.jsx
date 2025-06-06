@@ -70,7 +70,7 @@ const Profile = () => {
   // Upload image to Firebase Storage
   const uploadImage = async (uid) => {
     if (!imageFile) return null;
-    
+
     try {
       const imageRef = storageRef(storage, `profile_images/${uid}/${imageFile.name}`);
       await uploadBytes(imageRef, imageFile);
@@ -298,12 +298,14 @@ const Profile = () => {
                 disabled={!editMode}
               />
               <hr className="my-3 border-blue-100" />
-              <label className="block text-base font-semibold text-violet-700 mb-1">Nick Name</label>
+              {/* Replaced "Nick Name" with "Anonymous Name" */}
+              <label className="block text-base font-semibold text-violet-700 mb-1">Anonymous Name</label>
               <input
                 type="text"
-                name="nickname"
+                name="anonymousName"
                 className={inputClass}
-                value={editMode ? form?.nickname || '' : userData?.nickname || ''}
+                // Use anonymousName instead of nickname
+                value={editMode ? form?.anonymousName || '' : userData?.anonymousName || ''}
                 onChange={handleChange}
                 disabled={!editMode}
               />
