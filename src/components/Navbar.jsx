@@ -72,7 +72,7 @@ const Navbar = ({ toggleSidebar, user }) => {
   }, []);
 
   return (
-    <div className="w-full h-18 bg-white flex items-center justify-between px-4 shadow-md relative z-40">
+    <div className="fixed top-0 left-0 right-0 w-full h-18 bg-white flex items-center justify-between px-4 shadow-md z-50">
       <button onClick={toggleSidebar} className="text-violet-700 hover:text-violet-900 cursor-pointer">
         <Menu size={26} />
       </button>

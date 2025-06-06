@@ -219,6 +219,11 @@ function ProfileDetail() {
                     <span className="text-sm font-medium text-gray-500">Residence</span>
                     <p className="text-gray-800">{profile.residence}</p>
                   </div>
+
+                  <div>
+                    <span className="text-sm font-medium text-gray-500">Email</span>
+                    <p className="text-gray-800">{profile.email}</p>
+                  </div>
                 </div>
               </div>
 
