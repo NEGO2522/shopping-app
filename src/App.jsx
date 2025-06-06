@@ -7,6 +7,7 @@ import UserDetailsForm from './pages/UserDetailsForm';
 import Profile from './pages/Profile';
 import Notification from './pages/Notification';
 import ProfileDetail from './pages/ProfileDetail';
+import Contact from './pages/Contact';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar'; // Import Sidebar here to render globally
 import ProtectedRoute from './components/ProtectedRoute';
@@ -147,6 +148,14 @@ function MainRoutes({ user }) {
           element={
             <ProtectedRoute>
               <MyPosts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <ProtectedRoute>
+              <Contact />
             </ProtectedRoute>
           }
         />

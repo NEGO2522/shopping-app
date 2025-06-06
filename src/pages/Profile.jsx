@@ -146,7 +146,7 @@ const Profile = () => {
     : "bg-white/80 rounded-xl shadow p-6 mb-4";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-yellow-100 py-12 px-2 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 pt-20 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Card */}
         <div className="bg-white/80 rounded-2xl shadow-2xl p-8 relative">
