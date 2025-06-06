@@ -391,57 +391,98 @@ function Home() {
 
       <div className="max-w-7xl mx-auto">
         {/* Search Bar */}
-        <div className="mb-8 relative" ref={searchRef}>
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
-              <div className="relative flex items-center">
-                <FiSearch className="absolute left-3 text-gray-400 text-xl" />
-                <input
-                  type="text"
-                  placeholder={viewingSentCrushes ? "Search in my crushes..." : "Search people..."}
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowDropdown(true);
-                  }}
-                  onFocus={() => setShowDropdown(true)}
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Search Dropdown */}
-              {showDropdown && searchQuery && (
-                <div className="absolute z-50 w-full mt-2 bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
-                  {filteredProfiles.length > 0 ? (
-                    filteredProfiles.map((profile) => (
-                      <div
-                        key={profile.uid}
-                        className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => {
-                          setSearchQuery('');
-                          setShowDropdown(false);
-                          handleProfileClick(profile.uid);
-                        }}
-                      >
-                        <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 flex-shrink-0">
-                          {profile.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">{profile.name}</p>
-                          <p className="text-xs text-gray-500">{profile.branch}</p>
-                        </div>
+        <div ref={searchRef} className="relative mb-6">
+          <div className="flex items-center bg-white rounded-lg shadow-md">
+            <div className="p-3 text-gray-400">
+              <FiSearch className="w-6 h-6" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by name or branch..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowDropdown(true);
+              }}
+              className="flex-1 p-3 rounded-r-lg focus:outline-none"
+            />
+          </div>
+          {/* Dropdown results */}
+          {showDropdown && searchQuery && (
+            <div className="absolute z-10 w-full mt-2 bg-white rounded-lg shadow-lg">
+              {filteredProfiles.length > 0 ? (
+                filteredProfiles.map((profile) => (
+                  <div
+                    key={profile.uid}
+                    className="p-3 hover:bg-violet-50 cursor-pointer border-b last:border-b-0"
+                    onClick={() => {
+                      handleProfileClick(profile.uid);
+                      setShowDropdown(false);
+                      setSearchQuery('');
+                    }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700">
+                        {profile.name.charAt(0).toUpperCase()}
                       </div>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-sm text-gray-500">
-                      No results found
+                      <div>
+                        <p className="font-medium text-gray-900">{profile.name}</p>
+                        <p className="text-sm text-gray-500">{profile.branch}</p>
+                      </div>
                     </div>
-                  )}
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500">
+                  No profiles found
                 </div>
               )}
             </div>
-          </div>
+          )}
         </div>
+
+        {/* Mutual Crushes Section - Pinned at top */}
+        {!viewingSentCrushes && getMutualCrushes().length > 0 && (
+          <div className="mb-8 bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold text-violet-900 mb-14 text-left flex items-center justify-center">
+              Your Mutual Crush
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {getMutualCrushes().map((profile) => (
+                <div
+                  key={profile.uid}
+                  id={`profile-${profile.uid}`}
+                  className="bg-white rounded-lg border border-pink-200 overflow-hidden hover:shadow-md transition-shadow duration-300 flex flex-col"
+                  onClick={() => handleProfileClick(profile.uid)}
+                >
+                  <div className="bg-gradient-to-r from-pink-500 to-violet-500 p-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700">
+                        {profile.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="text-white">
+                        <h3 className="font-semibold text-sm">{profile.name}</h3>
+                        <p className="text-xs text-pink-100">{profile.branch}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-2 text-center bg-pink-50">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveChatId(profile.uid);
+                      }}
+                      className="w-full flex items-center justify-center space-x-1 px-2 py-1 bg-pink-500 text-white rounded-md hover:bg-pink-600 transition-colors duration-200 text-sm"
+                    >
+                      <FiMessageCircle className="text-sm" />
+                      <span>Chat</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Anonymous Thoughts Section */}
         <div className="mb-8">
@@ -473,79 +514,6 @@ function Home() {
             </button>
           </div>
         </div>
-
-        {/* Mutual Crushes Section */}
-        {!viewingSentCrushes && getMutualCrushes().length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-violet-900 mb-6 text-center flex items-center justify-center">
-              <span className="text-3xl mr-2">💘</span>
-              Your Mutual Crushes
-              <span className="text-3xl ml-2">💘</span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {getMutualCrushes().map((profile) => (
-                <div
-                  key={profile.uid}
-                  id={`profile-${profile.uid}`}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ring-2 ring-pink-400 ring-offset-4 ring-offset-violet-50 transform hover:scale-105 transition-transform duration-300"
-                >
-                  <div 
-                    className="bg-gradient-to-r from-pink-500 to-violet-500 px-4 py-3 cursor-pointer"
-                    onClick={() => handleProfileClick(profile.uid)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700">
-                          {profile.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="text-white">
-                          <h3 className="font-semibold">{profile.name}</h3>
-                          <p className="text-sm text-violet-200">{profile.branch}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveChatId(profile.uid);
-                        }}
-                        className="flex items-center space-x-2 px-4 py-2 bg-violet-100 text-violet-700 bg-opacity-20 bg-violet-100 rounded-lg hover:bg-opacity-30 transition-colors duration-200 cursor-pointer"
-                      >
-                        <FiMessageCircle className="text-xl" />
-                        <span className="font-semibold">Chat</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="p-4">
-                    <div className="mb-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
-                      <div className="flex items-center justify-center space-x-2">
-                        <span className="text-2xl">💘</span>
-                        <p className="text-pink-700 font-medium text-center">
-                          It's a match! You and {profile.name} have a crush on each other!
-                        </p>
-                        <span className="text-2xl">💘</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Branch</span>
-                        <p className="text-gray-800">{profile.branch}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Residence</span>
-                        <p className="text-gray-800">{profile.residence}</p>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium text-gray-500">Bio</span>
-                        <p className="text-gray-800">{profile.bio}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Main Profile Grid */}
         {viewingSentCrushes ? (

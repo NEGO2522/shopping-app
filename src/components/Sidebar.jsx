@@ -65,6 +65,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 ❤️ My Crush
               </Link>
             </li>
+            <li>
+              <Link
+                to="/my-posts"
+                onClick={() => setSidebarOpen(false)}
+                className="block border-b border-white/30 cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+              >
+                💭 My Posts
+              </Link>
+            </li>
           </ul>
         </div>
 

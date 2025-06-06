@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { ref, push, get, query, orderByChild, onValue, update, remove } from 'firebase/database';
-import { FiHeart, FiMessageCircle, FiClock, FiX, FiSend } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle, FiClock, FiX, FiSend, FiPlus } from 'react-icons/fi';
 
 function AnonymousThoughts() {
   const [thoughts, setThoughts] = useState([]);
@@ -12,6 +12,7 @@ function AnonymousThoughts() {
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [userLikes, setUserLikes] = useState({});
+  const [showPostModal, setShowPostModal] = useState(false);
 
   useEffect(() => {
     const thoughtsRef = ref(db, 'anonymousThoughts');
@@ -95,6 +96,7 @@ function AnonymousThoughts() {
       });
 
       setNewThought('');
+      setShowPostModal(false);
     } catch (error) {
       console.error('Error posting thought:', error);
     }
@@ -192,52 +194,11 @@ function AnonymousThoughts() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
+    <div className="bg-white rounded-lg shadow-lg p-6 relative">
       <h2 className="text-2xl font-bold text-violet-900 mb-6 flex items-center justify-center">
         <span className="text-3xl mr-2">💭</span>
         Campus Thoughts
       </h2>
-
-      {/* Post new thought */}
-      <form onSubmit={handlePostThought} className="mb-8">
-        <div className="flex flex-col space-y-3">
-          <div className="bg-violet-50 rounded-lg p-4">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-violet-200 flex items-center justify-center text-lg font-bold text-violet-700">
-                {currentUserName?.charAt(0)?.toUpperCase() || '?'}
-              </div>
-              <div>
-                <p className="font-semibold text-violet-900">{currentUserName || 'Anonymous'}</p>
-                <p className="text-sm text-violet-600">Share your thoughts with the campus</p>
-              </div>
-            </div>
-            <textarea
-              value={newThought}
-              onChange={(e) => setNewThought(e.target.value)}
-              placeholder="What's on your mind?"
-              className="w-full px-4 py-3 rounded-lg border border-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none bg-white"
-              rows="3"
-              maxLength={500}
-            />
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-500">
-              {newThought.length}/500 characters
-            </span>
-            <button
-              type="submit"
-              disabled={!newThought.trim()}
-              className={`px-6 py-2 rounded-md font-medium ${
-                newThought.trim()
-                  ? 'bg-violet-600 text-white hover:bg-violet-700'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Post
-            </button>
-          </div>
-        </div>
-      </form>
 
       {/* Thoughts list */}
       <div className="space-y-6">
@@ -264,7 +225,7 @@ function AnonymousThoughts() {
             <div className="flex items-center space-x-6 text-sm text-gray-500">
               <button 
                 onClick={() => handleLike(thought)}
-                className={`flex items-center space-x-2 transition-colors duration-200 ${
+                className={`flex items-center space-x-2 transition-colors duration-200 cursor-pointer ${
                   userLikes[thought.id] ? 'text-pink-500 hover:text-pink-600' : 'hover:text-violet-600'
                 }`}
               >
@@ -273,7 +234,7 @@ function AnonymousThoughts() {
               </button>
               <button 
                 onClick={() => setActiveCommentId(activeCommentId === thought.id ? null : thought.id)}
-                className="flex items-center space-x-2 hover:text-violet-600 transition-colors duration-200"
+                className="flex items-center space-x-2 hover:text-violet-600 transition-colors duration-200 cursor-pointer"
               >
                 <FiMessageCircle className="w-5 h-5" />
                 <span>{thought.comments?.length || 0}</span>
@@ -336,6 +297,79 @@ function AnonymousThoughts() {
           </div>
         )}
       </div>
+
+      {/* Floating Action Button */}
+      <button
+        onClick={() => setShowPostModal(true)}
+        className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-violet-600 hover:bg-violet-700 text-white rounded-full shadow-lg flex items-center justify-center transition-colors duration-200 px-6 py-4 space-x-2"
+        aria-label="Create new post"
+      >
+        <FiPlus className="w-5 h-5" />
+        <span className="font-medium">Make Post</span>
+      </button>
+
+      {/* Post Modal */}
+      {showPostModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-violet-900">Share Your Thoughts</h3>
+              <button
+                onClick={() => setShowPostModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            <form onSubmit={handlePostThought}>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-violet-200 flex items-center justify-center text-lg font-bold text-violet-700">
+                    {currentUserName?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-violet-900">{currentUserName || 'Anonymous'}</p>
+                    <p className="text-sm text-violet-600">Share your thoughts with the campus</p>
+                  </div>
+                </div>
+                <textarea
+                  value={newThought}
+                  onChange={(e) => setNewThought(e.target.value)}
+                  placeholder="What's on your mind?"
+                  className="w-full px-4 py-3 rounded-lg border border-violet-100 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none bg-white"
+                  rows="4"
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">
+                    {newThought.length}/500 characters
+                  </span>
+                  <div className="space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowPostModal(false)}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!newThought.trim()}
+                      className={`px-6 py-2 rounded-md font-medium ${
+                        newThought.trim()
+                          ? 'bg-violet-600 text-white hover:bg-violet-700'
+                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      Post
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
