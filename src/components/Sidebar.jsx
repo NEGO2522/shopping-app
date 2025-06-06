@@ -130,16 +130,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
               </li>
               <li>
                 <Link
-                  to="/settings"
-                  onClick={() => setSidebarOpen(false)}
-                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
-                >
-                  <span className="text-gray-600">⚙️</span>
-                  <span>Settings</span>
-                </Link>
-              </li>
-              <li>
-                <Link
                   to="/contact"
                   onClick={() => setSidebarOpen(false)}
                   className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
