@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { ref, get, push, set } from 'firebase/database';
-import { FiArrowLeft, FiMail } from 'react-icons/fi';
+import { FiArrowLeft, FiMail, FiMessageCircle } from 'react-icons/fi';
+import Chat from '../components/Chat';
 
 function ProfileDetail() {
   const { userId } = useParams();
@@ -12,6 +13,8 @@ function ProfileDetail() {
   const [error, setError] = useState(null);
   const [currentUserData, setCurrentUserData] = useState(null);
   const [hasSentCrush, setHasSentCrush] = useState(false);
+  const [hasMutualCrush, setHasMutualCrush] = useState(false);
+  const [activeChatId, setActiveChatId] = useState(null);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -43,6 +46,13 @@ function ProfileDetail() {
         const sentCrushRef = ref(db, `sentCrushes/${currentUser.uid}/${userId}`);
         const sentCrushSnapshot = await get(sentCrushRef);
         setHasSentCrush(sentCrushSnapshot.exists());
+
+        // Check if they sent a crush to current user
+        const receivedCrushRef = ref(db, `sentCrushes/${userId}/${currentUser.uid}`);
+        const receivedCrushSnapshot = await get(receivedCrushRef);
+        
+        // Set mutual crush status
+        setHasMutualCrush(sentCrushSnapshot.exists() && receivedCrushSnapshot.exists());
 
         setLoading(false);
       } catch (err) {
@@ -127,8 +137,37 @@ function ProfileDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-violet-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-violet-50">
+      {/* Full Screen Chat Overlay */}
+      {activeChatId && (
+        <div className="fixed inset-0 bg-violet-50 z-50">
+          <div className="max-w-4xl mx-auto h-screen py-4 px-4 flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setActiveChatId(null)}
+                  className="p-2 hover:bg-violet-100 rounded-full transition-colors duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                </button>
+                <h2 className="text-2xl font-bold text-violet-900">
+                  Chat with {profile?.name}
+                </h2>
+              </div>
+            </div>
+            <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
+              <Chat 
+                recipientId={profile?.uid} 
+                recipientName={profile?.name} 
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -204,17 +243,29 @@ function ProfileDetail() {
             {/* Action Buttons */}
             <div className="mt-8 flex gap-4">
               {shouldShowCrushButton() && (
-                <button
-                  className={`flex-1 px-4 py-2 rounded-md transition-colors duration-200 font-medium ${
-                    hasSentCrush
-                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                      : 'bg-violet-600 text-white hover:bg-violet-700'
-                  }`}
-                  onClick={handleSendCrush}
-                  disabled={hasSentCrush}
-                >
-                  {hasSentCrush ? '💝 Crush Sent' : '💌 Send Crush'}
-                </button>
+                <>
+                  {hasMutualCrush ? (
+                    <button
+                      onClick={() => setActiveChatId(profile.uid)}
+                      className="flex-1 px-4 py-2 rounded-md bg-pink-500 text-white hover:bg-pink-600 transition-colors duration-200 font-medium flex items-center justify-center space-x-2"
+                    >
+                      <FiMessageCircle className="text-xl" />
+                      <span>Open Chat</span>
+                    </button>
+                  ) : (
+                    <button
+                      className={`flex-1 px-4 py-2 rounded-md transition-colors duration-200 font-medium ${
+                        hasSentCrush
+                          ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                          : 'bg-violet-600 text-white hover:bg-violet-700'
+                      }`}
+                      onClick={handleSendCrush}
+                      disabled={hasSentCrush}
+                    >
+                      {hasSentCrush ? '💝 Crush Sent' : '💌 Send Crush'}
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>

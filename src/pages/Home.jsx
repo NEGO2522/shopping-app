@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
-import { ref, get, push, set } from "firebase/database";
+import { ref, get, push, set, onValue, remove } from "firebase/database";
 import { FiSearch } from 'react-icons/fi';
 import { FiMessageCircle } from 'react-icons/fi';
 import Chat from '../components/Chat';
+import AnonymousThoughts from '../components/AnonymousThoughts';
 
 function Home() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ function Home() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
   const [viewingSentCrushes, setViewingSentCrushes] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [matchedProfile, setMatchedProfile] = useState(null);
   const searchRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -105,6 +108,26 @@ function Home() {
     fetchProfiles();
   }, [navigate]);
 
+  // Add listener for mutual crush notifications
+  useEffect(() => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const mutualCrushNotificationsRef = ref(db, `mutualCrushNotifications/${currentUser.uid}`);
+    
+    const unsubscribe = onValue(mutualCrushNotificationsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const notification = snapshot.val();
+        setMatchedProfile(notification.profile);
+        setShowCongrats(true);
+        // Remove the notification after showing it
+        remove(mutualCrushNotificationsRef);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const handleSendCrush = async (profile) => {
     try {
       const currentUser = auth.currentUser;
@@ -145,7 +168,7 @@ function Home() {
       const theirCrushSnapshot = await get(theirCrushRef);
       
       if (theirCrushSnapshot.exists()) {
-        // It's a mutual crush! Send special notifications to both users
+        // It's a mutual crush! Create notifications for both users
         const mutualNotification = {
           type: "mutual_crush",
           message: "🎉 You have a mutual crush! Time to connect! 💘",
@@ -153,24 +176,39 @@ function Home() {
           read: false
         };
 
-        // Send to current user
-        const currentUserSafeEmail = currentUserData.email.replace(/\./g, ',');
-        await push(ref(db, `userNotifications/${currentUserSafeEmail}/notifications`), {
+        // Create mutual crush notification for current user
+        const currentUserNotificationRef = ref(db, `mutualCrushNotifications/${currentUser.uid}`);
+        await set(currentUserNotificationRef, {
           ...mutualNotification,
-          withUserName: profile.name,
-          withUserId: profile.uid,
-          withUserEmail: profile.email
+          profile: {
+            uid: profile.uid,
+            name: profile.name,
+            email: profile.email,
+            branch: profile.branch,
+            residence: profile.residence,
+            bio: profile.bio
+          }
         });
 
-        // Send to other user
-        await push(ref(db, `userNotifications/${safeEmail}/notifications`), {
+        // Create mutual crush notification for other user
+        const otherUserNotificationRef = ref(db, `mutualCrushNotifications/${profile.uid}`);
+        await set(otherUserNotificationRef, {
           ...mutualNotification,
-          withUserName: currentUserData.name,
-          withUserId: currentUser.uid,
-          withUserEmail: currentUserData.email
+          profile: {
+            uid: currentUser.uid,
+            name: currentUserData.name,
+            email: currentUserData.email,
+            branch: currentUserData.branch,
+            residence: currentUserData.residence,
+            bio: currentUserData.bio
+          }
         });
 
         // Update local state for immediate UI update
+        setMatchedProfile(profile);
+        setShowCongrats(true);
+
+        // Update received crushes for immediate UI update
         setReceivedCrushes(prev => ({
           ...prev,
           [profile.uid]: {
@@ -180,6 +218,22 @@ function Home() {
             targetUserName: currentUserData.name
           }
         }));
+
+        // Send regular notifications as well
+        const currentUserSafeEmail = currentUserData.email.replace(/\./g, ',');
+        await push(ref(db, `userNotifications/${currentUserSafeEmail}/notifications`), {
+          ...mutualNotification,
+          withUserName: profile.name,
+          withUserId: profile.uid,
+          withUserEmail: profile.email
+        });
+
+        await push(ref(db, `userNotifications/${safeEmail}/notifications`), {
+          ...mutualNotification,
+          withUserName: currentUserData.name,
+          withUserId: currentUser.uid,
+          withUserEmail: currentUserData.email
+        });
       }
 
       // Update local state
@@ -253,6 +307,59 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-violet-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Congratulations Overlay */}
+      {showCongrats && matchedProfile && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 relative animate-bounce-once">
+            <button
+              onClick={() => setShowCongrats(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="text-center">
+              <div className="text-6xl mb-4">💘</div>
+              <h2 className="text-2xl font-bold text-violet-900 mb-4">
+                Congratulations! It's a Match!
+              </h2>
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center text-2xl font-bold text-violet-700">
+                  {currentUserData?.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="text-3xl">💕</div>
+                <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center text-2xl font-bold text-violet-700">
+                  {matchedProfile.name.charAt(0).toUpperCase()}
+                </div>
+              </div>
+              <p className="text-gray-600 mb-6">
+                You and {matchedProfile.name} have a mutual crush! Time to start a conversation!
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setActiveChatId(matchedProfile.uid);
+                    setShowCongrats(false);
+                  }}
+                  className="w-full px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors duration-200 flex items-center justify-center space-x-2"
+                >
+                  <FiMessageCircle className="text-xl" />
+                  <span>Start Chatting</span>
+                </button>
+                <button
+                  onClick={() => setShowCongrats(false)}
+                  className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                >
+                  Continue Browsing
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Full Screen Chat Overlay */}
       {activeChatId && (
         <div className="fixed inset-0 bg-violet-50 z-50">
@@ -334,6 +441,11 @@ function Home() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Anonymous Thoughts Section */}
+        <div className="mb-8">
+          <AnonymousThoughts />
         </div>
 
         {/* View Toggle */}
