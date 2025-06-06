@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { ref, query, orderByChild, onValue, update, remove, get } from 'firebase/database';
+import { ref, query, orderByChild, onValue, update, remove, get, push } from 'firebase/database';
 import { FiHeart, FiMessageCircle, FiClock, FiTrash2, FiSend } from 'react-icons/fi';
 
 function MyPosts() {
@@ -153,6 +153,12 @@ function MyPosts() {
     }
   };
 
+  const getCurrentNickname = () => {
+    const user = auth.currentUser;
+    if (!user) return 'Anonymous';
+    return `User${user.uid.slice(-4).toUpperCase()}`;
+  };
+
   const formatTimestamp = (timestamp) => {
     const now = Date.now();
     const diff = now - timestamp;
@@ -197,23 +203,23 @@ function MyPosts() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-full bg-violet-200 flex items-center justify-center text-xl font-bold text-violet-700">
-                      {post.authorName?.charAt(0)?.toUpperCase() || '?'}
+                      {getCurrentNickname()}
                     </div>
                     <div>
-                      <p className="font-semibold text-violet-900">{post.authorName || 'Anonymous'}</p>
-                      <div className="flex items-center space-x-1 text-sm text-violet-600">
-                        <FiClock className="w-4 h-4" />
-                        <span>{formatTimestamp(post.timestamp)}</span>
-                      </div>
+                      <h3 className="font-semibold text-gray-900">
+                        {getCurrentNickname()}
+                      </h3>
+                      <p className="text-sm text-gray-500">{formatTimestamp(post.timestamp)}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(post.id)}
-                    className="text-gray-400 hover:text-red-500 transition-colors duration-200 cursor-pointer"
-                    title="Delete post"
-                  >
-                    <FiTrash2 className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      className="p-2 text-gray-500 hover:text-red-500"
+                      onClick={() => handleDelete(post.id)}
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-lg text-gray-800 whitespace-pre-wrap mb-4 leading-relaxed">
                   {post.content}

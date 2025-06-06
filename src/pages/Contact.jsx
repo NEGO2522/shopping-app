@@ -80,7 +80,7 @@ const Contact = () => {
           </div>
           <div className="space-y-6">
             <p className="text-gray-600">
-              We value your feedback! Help us improve Campus Connect by sharing your thoughts and suggestions.
+              We value your feedback! Help us improve Campus Crush by sharing your thoughts and suggestions.
             </p>
             <form className="space-y-4">
               <div>

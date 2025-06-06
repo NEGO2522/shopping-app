@@ -120,12 +120,12 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/about-us"
+                  to="/about"
                   onClick={() => setSidebarOpen(false)}
                   className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
                   <span className="text-gray-600">ℹ️</span>
-                  <span>About Us</span>
+                  <span>About</span>
                 </Link>
               </li>
               <li>
