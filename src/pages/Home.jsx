@@ -461,30 +461,96 @@ function Home() {
 
           {/* New "Matches" Page/Section - ADDED */}
           {activeTab === "matches" && (
-            <div className="mb-8 relative">
-              <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-t-2xl p-6">
-                <h2 className="text-xl font-bold text-white flex items-center">
-                  <span className="text-2xl mr-2">💘</span>
+            <div className="mb-8">
+              <div className="bg-gradient-to-r from-pink-500 to-violet-500 rounded-t-2xl px-6 py-8">
+                <h2 className="text-2xl font-bold text-white flex items-center mb-2">
+                  <span className="text-3xl mr-3">💘</span>
                   Your Mutual Crushes
                 </h2>
-                <p className="text-violet-100 mt-1">People who like you back! Start a conversation!</p>
+                <p className="text-violet-100">These people have a crush on you too! Start a conversation!</p>
               </div>
               <div className="bg-white rounded-b-2xl shadow-lg p-6">
                 {getMutualCrushes().length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {getMutualCrushes().map((profile) => (
-                      <ProfileCard
+                      <div
                         key={profile.uid}
-                        p={profile}
-                        onOpen={() => handleProfileClick(profile.uid)}
-                        onAction={() => setActiveChatId(profile.uid)} // Action for matches is to chat
-                        actionLabel="Chat" // New action label for mutual crushes
-                        isMutual={true} // Indicate it's a mutual crush
-                      />
+                        className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 ring-2 ring-pink-400 ring-offset-4 ring-offset-white"
+                      >
+                        <div 
+                          className="bg-gradient-to-r from-pink-500 to-violet-500 px-4 py-3 cursor-pointer relative"
+                          onClick={() => handleProfileClick(profile.uid)}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700 overflow-hidden">
+                              {profile.photoURL ? (
+                                <img
+                                  src={profile.photoURL}
+                                  alt={profile.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                profile.name.charAt(0).toUpperCase()
+                              )}
+                            </div>
+                            <div className="text-white">
+                              <h3 className="font-semibold">{profile.name}</h3>
+                              <p className="text-sm text-violet-200">{profile.year}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4">
+                          <div className="mb-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
+                            <div className="flex items-center justify-center space-x-2">
+                              <span className="text-2xl">💘</span>
+                              <p className="text-pink-700 font-medium text-center">
+                                It's a match! You and {profile.name} have a crush on each other!
+                              </p>
+                              <span className="text-2xl">💘</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div>
+                              <span className="text-sm font-medium text-gray-500">Branch</span>
+                              <p className="text-gray-800">{profile.branch}</p>
+                            </div>
+                            <div>
+                              <span className="text-sm font-medium text-gray-500">Residence</span>
+                              <p className="text-gray-800">{profile.residence}</p>
+                            </div>
+                            {profile.bio && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-500">Bio</span>
+                                <p className="text-gray-800 line-clamp-2">{profile.bio}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="mt-4">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveChatId(profile.uid);
+                              }}
+                              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors duration-200"
+                            >
+                              <FiMessageCircle className="text-xl" />
+                              <span>Open Chat</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : (
-                  <Empty msg="You don't have any mutual crushes yet. Keep sending those crushes!" />
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">💝</div>
+                    <h3 className="text-xl font-semibold text-violet-900 mb-2">No Matches Yet</h3>
+                    <p className="text-gray-600">
+                      Keep sending crushes to find your perfect match!
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
