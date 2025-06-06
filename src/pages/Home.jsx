@@ -462,13 +462,6 @@ function Home() {
           {/* New "Matches" Page/Section - ADDED */}
           {activeTab === "matches" && (
             <div className="mb-8">
-              <div className="bg-gradient-to-r from-pink-500 to-violet-500 rounded-t-2xl px-6 py-8">
-                <h2 className="text-2xl font-bold text-white flex items-center mb-2">
-                  <span className="text-3xl mr-3">💘</span>
-                  Your Mutual Crushes
-                </h2>
-                <p className="text-violet-100">These people have a crush on you too! Start a conversation!</p>
-              </div>
               <div className="bg-white rounded-b-2xl shadow-lg p-6">
                 {getMutualCrushes().length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
