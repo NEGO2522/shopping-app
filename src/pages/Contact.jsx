@@ -17,12 +17,12 @@ const Contact = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value // This correctly updates the state based on the input's 'name' attribute
     });
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission behavior
     setLoading(true);
     setError('');
     setSuccess(false);
@@ -34,13 +34,14 @@ const Contact = () => {
         email: formData.email,
         feedback: formData.feedback,
         timestamp: new Date().toISOString(),
-        userId: auth.currentUser?.uid
+        userId: auth.currentUser?.uid || 'anonymous' // Use 'anonymous' if no user is logged in
       };
 
-      await push(feedbackRef, feedbackData);
+      await push(feedbackRef, feedbackData); // This pushes the data to Firebase
       setSuccess(true);
-      setFormData({ name: '', email: '', feedback: '' });
+      setFormData({ name: '', email: '', feedback: '' }); // Clear form on success
     } catch (err) {
+      console.error("Error submitting feedback: ", err); // Log the actual error for debugging
       setError('Failed to submit feedback. Please try again.');
     } finally {
       setLoading(false);
@@ -66,9 +67,6 @@ const Contact = () => {
                 findcrushpoornima@gmail.com
               </span>
             </div>
-            <p className="text-gray-600">
-              We aim to respond to all inquiries within 24 hours. Please include your name and a detailed description of your issue or query.
-            </p>
           </div>
         </div>
 
@@ -79,15 +77,16 @@ const Contact = () => {
             <h2 className="text-2xl font-bold text-violet-900">Send Feedback</h2>
           </div>
           <div className="space-y-6">
-            <p className="text-gray-600">
-              We value your feedback! Help us improve Campus Crush by sharing your thoughts and suggestions.
-            </p>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}> {/* Add onSubmit to the form */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                 <div className="relative">
                   <input
                     type="text"
+                    id="name" // Add id
+                    name="name" // Add name attribute
+                    value={formData.name} // Bind value to state
+                    onChange={handleChange} // Add onChange handler
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 px-4 py-3 text-base pl-9"
                     placeholder="Your name"
                   />
@@ -97,10 +96,14 @@ const Contact = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                 <div className="relative">
                   <input
                     type="email"
+                    id="email" // Add id
+                    name="email" // Add name attribute
+                    value={formData.email} // Bind value to state
+                    onChange={handleChange} // Add onChange handler
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 px-4 py-3 text-base pl-9"
                     placeholder="Your email"
                   />
@@ -110,15 +113,18 @@ const Contact = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Feedback</label>
+                <label htmlFor="feedback" className="block text-sm font-medium text-gray-700">Feedback</label>
                 <div className="relative">
                   <textarea
+                    id="feedback" // Add id
+                    name="feedback" // Add name attribute
+                    value={formData.feedback} // Bind value to state
+                    onChange={handleChange} // Add onChange handler
                     rows={6}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 px-4 py-3 text-base"
                     placeholder="Share your thoughts..."
                   />
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-400">📝</span>
+                  <div className="absolute top-0 left-0 pl-3 pt-3 flex items-start pointer-events-none"> {/* Adjusted icon position for textarea */}
                   </div>
                 </div>
               </div>
@@ -126,9 +132,9 @@ const Contact = () => {
                 <button
                   type="button"
                   disabled
-                  className="w-full bg-violet-600 text-white py-2 px-4 rounded-md"
+                  className="w-full bg-violet-600 text-white py-2 px-4 rounded-md opacity-75 cursor-not-allowed flex items-center justify-center"
                 >
-                  <span className="animate-spin">⏳</span> Sending...
+                  <span className="animate-spin mr-2">⏳</span> Sending...
                 </button>
               ) : (
                 <button
