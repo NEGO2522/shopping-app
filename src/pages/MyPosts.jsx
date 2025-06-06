@@ -9,8 +9,9 @@ function MyPosts() {
   const [userLikes, setUserLikes] = useState({});
   const [activeCommentId, setActiveCommentId] = useState(null);
   const [newComment, setNewComment] = useState('');
-  const [currentUserName, setCurrentUserName] = useState('');
+  const [currentUserName, setCurrentUserName] = useState(''); // Stores the user's 'name'
   const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [currentUserAnonymousName, setCurrentUserAnonymousName] = useState(''); // Stores the user's 'anonymousName'
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -24,6 +25,11 @@ function MyPosts() {
         const userData = userSnapshot.val();
         setCurrentUserName(userData.name);
         setCurrentUserEmail(userData.email);
+        // Assuming 'anonymousName' is a field in the user's profile
+        setCurrentUserAnonymousName(userData.anonymousName || `User${currentUser.uid.slice(-4).toUpperCase()}`);
+      } else {
+        // Fallback if user data not found or anonymousName is missing
+        setCurrentUserAnonymousName(`User${currentUser.uid.slice(-4).toUpperCase()}`);
       }
 
       // Fetch user's likes
@@ -107,17 +113,17 @@ function MyPosts() {
 
       const thoughtRef = ref(db, `anonymousThoughts/${postId}`);
       const thoughtSnapshot = await get(thoughtRef);
-      
+
       if (thoughtSnapshot.exists()) {
         const thought = thoughtSnapshot.val();
         const comments = thought.comments || [];
-        
+
         comments.push({
           content: newComment.trim(),
           timestamp: Date.now(),
           authorId: currentUser.uid,
-          authorName: currentUserName,
-          authorEmail: currentUserEmail
+          authorName: currentUserAnonymousName, // Use currentUserAnonymousName here
+          authorEmail: currentUserEmail // Keep email for potential admin use or specific display
         });
 
         await update(thoughtRef, { comments });
@@ -154,9 +160,8 @@ function MyPosts() {
   };
 
   const getCurrentNickname = () => {
-    const user = auth.currentUser;
-    if (!user) return 'Anonymous';
-    return `User${user.uid.slice(-4).toUpperCase()}`;
+    // This function now directly uses the fetched anonymousName
+    return currentUserAnonymousName || 'Anonymous';
   };
 
   const formatTimestamp = (timestamp) => {
@@ -184,7 +189,7 @@ function MyPosts() {
     <div className="min-h-screen bg-violet-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl font-bold text-violet-900 mb-6">My Posts</h1>
-        
+
         <div className="space-y-4">
           {posts.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -202,12 +207,15 @@ function MyPosts() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
+                    {/* Display first letter of anonymousName, or '?' if not available */}
                     <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center">
-                      <span className="text-2xl text-violet-600">U</span>
+                      <span className="text-2xl text-violet-600">
+                        {currentUserAnonymousName?.charAt(0)?.toUpperCase() || '?'}
+                      </span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {getCurrentNickname()}
+                        {getCurrentNickname()} {/* Use the fetched anonymousName here */}
                       </h3>
                       <p className="text-sm text-gray-500">{formatTimestamp(post.timestamp)}</p>
                     </div>
@@ -225,7 +233,7 @@ function MyPosts() {
                   {post.content}
                 </p>
                 <div className="flex items-center space-x-6 text-sm text-gray-500">
-                  <button 
+                  <button
                     onClick={() => handleLike(post)}
                     className={`flex items-center space-x-2 transition-colors duration-200 cursor-pointer ${
                       userLikes[post.id] ? 'text-pink-500 hover:text-pink-600' : 'hover:text-violet-600'
@@ -234,7 +242,7 @@ function MyPosts() {
                     <FiHeart className={`w-5 h-5 ${userLikes[post.id] ? 'fill-current' : ''}`} />
                     <span>{post.likes || 0}</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setActiveCommentId(activeCommentId === post.id ? null : post.id)}
                     className="flex items-center space-x-2 hover:text-violet-600 transition-colors duration-200 cursor-pointer"
                   >
@@ -251,6 +259,7 @@ function MyPosts() {
                         {post.comments.map((comment, index) => (
                           <div key={index} className="bg-violet-50 rounded-lg p-3">
                             <div className="flex items-center space-x-2 mb-2">
+                              {/* Display first letter of comment author's name, or '?' */}
                               <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-sm font-bold text-violet-700">
                                 {comment.authorName?.charAt(0)?.toUpperCase() || '?'}
                               </div>
@@ -295,4 +304,4 @@ function MyPosts() {
   );
 }
 
-export default MyPosts; 
+export default MyPosts;

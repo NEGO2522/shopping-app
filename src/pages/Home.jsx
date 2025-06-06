@@ -38,10 +38,11 @@ function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeChatId, setActiveChatId] = useState(null);
-  const [activeTab, setActiveTab] = useState("posts"); // 'posts' | 'people'
+  const [activeTab, setActiveTab] = useState("posts"); // 'posts' | 'people' | 'matches' -> ADDED 'matches'
   const [viewingSentCrushes, setViewingSentCrushes] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
   const [matchedProfile, setMatchedProfile] = useState(null);
+  // const [showMutualCrushes, setShowMutualCrushes] = useState(true); // This state can be removed if 'matches' tab is the primary way to view them
 
   const searchRef = useRef(null);
 
@@ -212,7 +213,7 @@ function Home() {
       // Check if this creates a mutual crush
       const theirCrushRef = ref(db, `sentCrushes/${profile.uid}/${currentUser.uid}`);
       const theirCrushSnapshot = await get(theirCrushRef);
-      
+
       if (theirCrushSnapshot.exists()) {
         // It's a mutual crush! Create notifications for both users
         const mutualNotification = {
@@ -331,72 +332,6 @@ function Home() {
       {/* Main Content - Adjusted with top padding for fixed navbar */}
       <div className="pt-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Mutual Crushes Section - Pinned at Top */}
-          {!viewingSentCrushes && getMutualCrushes().length > 0 && (
-            <div className="mb-8">
-              <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-t-2xl p-6">
-                <h2 className="text-xl font-bold text-white flex items-center">
-                  <span className="text-2xl mr-2">💘</span>
-                  Your Mutual Crushes
-                </h2>
-                <p className="text-violet-100 mt-1">People who like you back! Start a conversation!</p>
-              </div>
-              <div className="bg-white rounded-b-2xl shadow-lg p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {getMutualCrushes().map((profile) => (
-                    <div
-                      key={profile.uid}
-                      className="bg-violet-50 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
-                    >
-                      <div className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-full bg-violet-200 flex items-center justify-center text-2xl font-bold text-violet-700 overflow-hidden flex-shrink-0">
-                            {profile.photoURL ? (
-                              <img
-                                src={profile.photoURL}
-                                alt={profile.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              profile.name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-lg text-violet-900 truncate">{profile.name}</h3>
-                            <p className="text-violet-600 text-sm truncate">{profile.branch}</p>
-                            <p className="text-violet-500 text-sm truncate">{profile.year}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 flex gap-2">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/profile/${profile.uid}`);
-                            }}
-                            className="flex-1 px-3 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 rounded-lg transition-colors duration-200 text-sm font-medium"
-                          >
-                            View Profile
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveChatId(profile.uid);
-                            }}
-                            className="flex-1 px-3 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors duration-200 text-sm font-medium flex items-center justify-center"
-                          >
-                            <FiMessageCircle className="mr-1" />
-                            Chat
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Search Bar */}
           <div ref={searchRef} className="relative mb-6">
             <div className="flex items-center bg-white rounded-lg shadow-md">
@@ -444,7 +379,52 @@ function Home() {
             )}
           </div>
 
-          <Tabs active={activeTab} onChange={setActiveTab} />
+          {/* Tabs - MODIFIED */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-1 inline-flex items-center">
+              <button
+                onClick={() => setActiveTab('posts')}
+                className={`flex items-center px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  activeTab === 'posts'
+                    ? 'bg-violet-100 text-violet-700'
+                    : 'text-gray-500 hover:text-violet-700'
+                }`}
+              >
+                <FiMessageSquare className="mr-2" />
+                Posts
+              </button>
+              <button
+                onClick={() => setActiveTab('people')}
+                className={`flex items-center px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                  activeTab === 'people'
+                    ? 'bg-violet-100 text-violet-700'
+                    : 'text-gray-500 hover:text-violet-700'
+                }`}
+              >
+                <FiUser className="mr-2" />
+                People
+              </button>
+              {/* New "Matches" Tab Button - ADDED */}
+              {getMutualCrushes().length > 0 && (
+                <button
+                  onClick={() => setActiveTab('matches')}
+                  className={`flex items-center px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                    activeTab === 'matches'
+                      ? 'bg-pink-100 text-pink-700' // Distinct styling for matches
+                      : 'text-gray-500 hover:text-pink-700'
+                  }`}
+                >
+                  <FiHeart className="mr-2" />
+                  Matches ({getMutualCrushes().length})
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Conditional Rendering based on activeTab */}
+          {activeTab === "posts" && (
+            <AnonymousThoughts />
+          )}
 
           {activeTab === "people" && (
             <Fragment>
@@ -462,9 +442,8 @@ function Home() {
                       p={p}
                       onOpen={() => handleProfileClick(p.uid)}
                       onAction={() => handleSendCrush(p)}
-                      // Conditionally render action based on whether crush is sent or we are viewing sent crushes
                       actionLabel={viewingSentCrushes ? undefined : (hasSentCrush(p.uid) ? undefined : "Crush")}
-                      isCrushSent={hasSentCrush(p.uid)} // Pass this prop for clearer logic in ProfileCard
+                      isCrushSent={hasSentCrush(p.uid)}
                     />
                   ))
                 ) : (
@@ -480,9 +459,37 @@ function Home() {
             </Fragment>
           )}
 
-          {activeTab === "posts" && (
-            <AnonymousThoughts />
+          {/* New "Matches" Page/Section - ADDED */}
+          {activeTab === "matches" && (
+            <div className="mb-8 relative">
+              <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-t-2xl p-6">
+                <h2 className="text-xl font-bold text-white flex items-center">
+                  <span className="text-2xl mr-2">💘</span>
+                  Your Mutual Crushes
+                </h2>
+                <p className="text-violet-100 mt-1">People who like you back! Start a conversation!</p>
+              </div>
+              <div className="bg-white rounded-b-2xl shadow-lg p-6">
+                {getMutualCrushes().length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {getMutualCrushes().map((profile) => (
+                      <ProfileCard
+                        key={profile.uid}
+                        p={profile}
+                        onOpen={() => handleProfileClick(profile.uid)}
+                        onAction={() => setActiveChatId(profile.uid)} // Action for matches is to chat
+                        actionLabel="Chat" // New action label for mutual crushes
+                        isMutual={true} // Indicate it's a mutual crush
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <Empty msg="You don't have any mutual crushes yet. Keep sending those crushes!" />
+                )}
+              </div>
+            </div>
           )}
+
         </div>
       </div>
 
@@ -509,7 +516,7 @@ function Home() {
             >
               <FiX className="w-6 h-6" />
             </button>
-            
+
             <div className="text-center">
               <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-violet-100 flex items-center justify-center overflow-hidden">
                 {matchedProfile.photoURL ? (
@@ -564,29 +571,8 @@ const Centered = ({ children, error }) => (
   </div>
 );
 
-const Tabs = ({ active, onChange }) => (
-  <div className="flex justify-center mb-8">
-    <div className="bg-white rounded-lg shadow-sm p-1 inline-flex">
-      {[
-        { id: "posts", label: "Posts", icon: FiMessageSquare },
-        { id: "people", label: "People", icon: FiUser }
-      ].map(({ id, label, icon: Icon }) => (
-        <button
-          key={id}
-          className={`flex items-center px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-            active === id
-              ? "bg-gray-100 text-gray-800"
-              : "text-gray-500 hover:text-gray-800"
-          }`}
-          onClick={() => onChange(id)}
-        >
-          <Icon className="mr-2" />
-          {label}
-        </button>
-      ))}
-    </div>
-  </div>
-);
+// Removed the old Tabs component as it's now integrated directly into Home for flexibility.
+// You can keep it if you still use it elsewhere or prefer it as a separate component.
 
 const SearchBar = ({
   searchRef,
@@ -693,7 +679,6 @@ const ProfileCard = ({ p, actionLabel, onAction, onOpen, isCrushSent, isMutual }
                 <span>Crush sent</span>
               </span>
             )}
-           
           </div>
           {actionLabel && (
             <button
@@ -704,6 +689,8 @@ const ProfileCard = ({ p, actionLabel, onAction, onOpen, isCrushSent, isMutual }
               className={`px-4 py-2 rounded-full text-sm font-medium ${
                 actionLabel === 'Crush'
                   ? 'bg-violet-600 text-white hover:bg-violet-700'
+                  : actionLabel === 'Chat'
+                  ? 'bg-green-600 text-white hover:bg-green-700' // Styling for chat button
                   : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
               }`}
             >
@@ -796,7 +783,9 @@ const ChatOverlay = ({ name, onClose, children }) => (
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       </button>
-      <h2 className="text-lg font-semibold text-violet-900 ml-4">Chat with {name}</h2>
+      <h2 className="text-lg font-semibold text-violet-900 ml-4">
+        {name ? `Chat with ${name}` : 'Chat'}
+      </h2> {/* Added name to chat header */}
     </header>
     <div className="flex-1 overflow-hidden">{children}</div>
   </div>
