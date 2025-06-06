@@ -3,7 +3,7 @@ import { auth, db } from '../firebase';
 import { ref, push, get, query, orderByChild, onValue, update, remove } from 'firebase/database';
 import { FiHeart, FiMessageCircle, FiClock, FiX, FiSend, FiPlus } from 'react-icons/fi';
 
-// Custom scrollbar styles (kept, but no longer applies to comments section)
+// Custom scrollbar styles (kept)
 const scrollbarStyles = `.custom-scrollbar::-webkit-scrollbar {
     width: 6px;
   }
@@ -72,7 +72,6 @@ function AnonymousThoughts() {
         if (pendingAction.type === 'post') {
           handlePostThought(pendingAction.event);
         } else if (pendingAction.type === 'comment') {
-          // If the pending action was a comment, re-call handleComment
           handleComment(pendingAction.thoughtId);
         } else if (pendingAction.type === 'showPostModal') {
           setShowPostModal(true);
@@ -92,34 +91,54 @@ function AnonymousThoughts() {
     const thoughtsQuery = query(thoughtsRef, orderByChild('timestamp'));
 
     const fetchUserNames = async (thoughtsData) => {
+      // Ensure thoughtsData is always an array before mapping
+      if (!Array.isArray(thoughtsData)) {
+        console.warn("Expected 'thoughtsData' to be an array, but received:", thoughtsData);
+        return []; // Return an empty array to prevent map error
+      }
+
       const userPromises = thoughtsData.map(async (thought) => {
-        const userRef = ref(db, `users/${thought.authorId}`);
-        const userSnapshot = await get(userRef);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.val();
-          return {
-            ...thought,
-            authorName: userData.anonymousName || 'Anonymous User',
-            isAnonymous: true
-          };
+        // Ensure thought and thought.authorId are not null/undefined
+        if (!thought || !thought.authorId) {
+          console.warn("Skipping thought due to missing data:", thought);
+          return { ...thought, authorName: 'Unknown User', isAnonymous: true }; // Provide a fallback
         }
-        return thought;
+        
+        const userRef = ref(db, `users/${thought.authorId}`);
+        try {
+          const userSnapshot = await get(userRef);
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.val();
+            return {
+              ...thought,
+              authorName: userData.anonymousName || 'Anonymous User',
+              isAnonymous: true
+            };
+          }
+        } catch (error) {
+          console.error(`Error fetching user data for ${thought.authorId}:`, error);
+        }
+        return { ...thought, authorName: 'Anonymous User', isAnonymous: true }; // Fallback if user data not found or error
       });
       return Promise.all(userPromises);
     };
 
     const unsubscribe = onValue(thoughtsQuery, async (snapshot) => {
+      let currentThoughtsData = [];
       if (snapshot.exists()) {
-        const thoughtsData = [];
-        snapshot.forEach((childSnapshot) => {
-          thoughtsData.unshift({
-            id: childSnapshot.key,
-            ...childSnapshot.val()
-          });
-        });
-        const thoughtsWithNames = await fetchUserNames(thoughtsData);
-        setThoughts(thoughtsWithNames);
+        // Firebase snapshot.val() can return an object of objects
+        // Convert it to an array of objects for easier mapping
+        const rawData = snapshot.val();
+        if (rawData) {
+          currentThoughtsData = Object.keys(rawData).map(key => ({
+            id: key,
+            ...rawData[key]
+          })).reverse(); // Unshift effectively reverses, so map and reverse
+        }
       }
+      
+      const thoughtsWithNames = await fetchUserNames(currentThoughtsData);
+      setThoughts(thoughtsWithNames);
       setLoading(false);
     });
 
@@ -153,7 +172,6 @@ function AnonymousThoughts() {
     e.preventDefault();
     if (!newThought.trim()) return;
 
-    // Check if user has anonymous name
     if (!userAnonymousName) {
       setShowAnonymousSetup(true);
       setPendingAction({ type: 'post', event: e });
@@ -225,10 +243,9 @@ function AnonymousThoughts() {
   const handleComment = async (thoughtId) => {
     if (!newComment.trim()) return;
 
-    // Check if user has anonymous name
     if (!userAnonymousName) {
       setShowAnonymousSetup(true);
-      setPendingAction({ type: 'comment', thoughtId }); // Store thoughtId for pending comment
+      setPendingAction({ type: 'comment', thoughtId });
       return;
     }
 
@@ -373,9 +390,9 @@ function AnonymousThoughts() {
             {activeCommentId === thought.id && (
               <div className="mt-4 pt-4 border-t border-violet-100">
                 {thought.comments && thought.comments.length > 0 && (
-                  <div className="mb-4 space-y-3"> {/* Removed max-h and overflow-y-auto */}
-                    {thought.comments.map((comment, index) => (
-                      <div key={index} className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
+                  <div className="mb-4 space-y-3">
+                    {thought.comments.map((comment, commentIndex) => ( // Changed key to commentIndex for comments
+                      <div key={commentIndex} className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm">
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-sm font-bold text-violet-700">
                             {comment.authorName?.charAt(0)?.toUpperCase() || '?'}
@@ -418,7 +435,9 @@ function AnonymousThoughts() {
         {thoughts.length === 0 && (
           <div className="text-center py-12 bg-violet-50 rounded-lg">
             <div className="text-4xl mb-3">💭</div>
-            <h3 className="text-xl font-semibold text-violet-900 mb-2">No thoughts yet</h3>
+            <h3 className="text-xl font-semibold text-violet-900 mb-2">
+              No thoughts yet
+            </h3>
             <p className="text-violet-600">
               Be the first one to share your thoughts with the campus!
             </p>

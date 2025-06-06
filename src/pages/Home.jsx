@@ -73,7 +73,7 @@ function Home() {
         if (receivedCrushesSnapshot.exists()) {
           const allCrushes = receivedCrushesSnapshot.val();
           const received = {};
-          
+
           // Find crushes where current user is the target
           Object.entries(allCrushes).forEach(([senderId, crushes]) => {
             Object.entries(crushes).forEach(([targetId, crushData]) => {
@@ -82,13 +82,13 @@ function Home() {
               }
             });
           });
-          
+
           setReceivedCrushes(received);
         }
 
         const usersRef = ref(db, 'users');
         const snapshot = await get(usersRef);
-        
+
         if (snapshot.exists()) {
           const usersData = snapshot.val();
           // Filter out the current user and convert to array
@@ -114,7 +114,7 @@ function Home() {
     if (!currentUser) return;
 
     const mutualCrushNotificationsRef = ref(db, `mutualCrushNotifications/${currentUser.uid}`);
-    
+
     const unsubscribe = onValue(mutualCrushNotificationsRef, (snapshot) => {
       if (snapshot.exists()) {
         const notification = snapshot.val();
@@ -166,7 +166,7 @@ function Home() {
       // Check if this creates a mutual crush
       const theirCrushRef = ref(db, `sentCrushes/${profile.uid}/${currentUser.uid}`);
       const theirCrushSnapshot = await get(theirCrushRef);
-      
+
       if (theirCrushSnapshot.exists()) {
         // It's a mutual crush! Create notifications for both users
         const mutualNotification = {
@@ -262,10 +262,10 @@ function Home() {
   const hasMutualCrush = (profileId) => {
     // Check if current user has sent a crush to this profile
     const hasSentCrush = sentCrushes[profileId] !== undefined;
-    
+
     // Check if this profile has sent a crush to current user
     const hasReceivedCrush = receivedCrushes[profileId] !== undefined;
-    
+
     return hasSentCrush && hasReceivedCrush;
   };
 
@@ -329,7 +329,7 @@ function Home() {
               </div>
               <input
                 type="text"
-                placeholder={activeTab === 'people' ? "Search people by name or branch..." : "Search posts..."}
+                placeholder="Search people by name or branch..." // Always search people
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -338,8 +338,8 @@ function Home() {
                 className="flex-1 p-3 rounded-r-lg text-sm focus:outline-none"
               />
             </div>
-            {/* Dropdown results - only show for people tab */}
-            {activeTab === 'people' && showDropdown && searchQuery && (
+            {/* Dropdown results - always show for search query */}
+            {showDropdown && searchQuery && (
               <div className="absolute w-full mt-2 bg-white rounded-lg shadow-lg overflow-hidden z-10">
                 {filteredProfiles.length > 0 ? (
                   filteredProfiles.map((profile) => (
@@ -420,7 +420,7 @@ function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                
+
                 <div className="text-center">
                   <div className="text-4xl mb-4">💘</div>
                   <h3 className="text-2xl font-bold text-violet-900 mb-2">It's a Match!</h3>
@@ -461,9 +461,9 @@ function Home() {
                   </div>
                 </div>
                 <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
-                  <Chat 
-                    recipientId={activeChatId} 
-                    recipientName={profiles.find(p => p.uid === activeChatId)?.name} 
+                  <Chat
+                    recipientId={activeChatId}
+                    recipientName={profiles.find(p => p.uid === activeChatId)?.name}
                   />
                 </div>
               </div>
@@ -510,7 +510,7 @@ function Home() {
                               <p className="text-violet-100 text-lg">{profile.year}</p>
                             </div>
                           </div>
-                          
+
                           <div className="space-y-4 bg-white p-6">
                             <div>
                               <p className="text-base font-medium text-gray-600">Branch</p>
