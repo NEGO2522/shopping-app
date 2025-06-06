@@ -53,95 +53,101 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   return (
     <div
       ref={sidebarRef}
-      className={`fixed top-0 left-0 h-full bg-violet-700 text-white transition-all duration-300 z-50 ${
-        sidebarOpen ? "w-52" : "w-0"
+      className={`fixed top-0 left-0 h-full bg-gray-100 text-gray-800 transition-all duration-300 z-50 ${
+        sidebarOpen ? "w-52 md:w-64" : "w-0"
       }`}
     >
       <div className={`h-full overflow-y-auto ${sidebarOpen ? "p-4" : "p-0 overflow-hidden"}`}>
         {/* Close Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-end mb-4">
           <button
             onClick={() => setSidebarOpen(false)}
-            className="text-white hover:text-red-300"
+            className="text-gray-800 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             aria-label="Close sidebar"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="text-xl font-bold mb-6 mt-2">💘</div>
-
         <div className="flex flex-col h-full justify-between">
           {/* Top Menu Section */}
           <div>
-            <h2 className="text-sm uppercase tracking-wide mb-2 text-white/80 px-2">
-              Main
-            </h2>
+            <Link
+              to="/profile"
+              onClick={() => setSidebarOpen(false)}
+              className="flex justify-center mt-8 mb-8 cursor-pointer hover:bg-gray-100 rounded-full transition-colors duration-200"
+            >
+              <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center">
+                <span className="text-3xl text-gray-600">👤</span>
+              </div>
+            </Link>
             <ul className="space-y-2">
               <li>
                 <Link
                   to="/home"
                   onClick={() => setSidebarOpen(false)}
-                  className="block border-b border-white/30 cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  👤 Home
+                  <span className="text-gray-600">👤</span>
+                  <span>Home</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/my-crushes"
                   onClick={() => setSidebarOpen(false)}
-                  className="block border-b border-white/30 cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  ❤️ My Crush
+                  <span className="text-gray-600">❤️</span>
+                  <span>My Crush</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/my-posts"
                   onClick={() => setSidebarOpen(false)}
-                  className="block border-b border-white/30 cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  💭 My Posts
+                  <span className="text-gray-600">💭</span>
+                  <span>My Posts</span>
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* Bottom Menu Section */}
-          <div className="mb-6">
-            <h2 className="text-sm uppercase tracking-wide mb-2 text-white/80 px-2">
-              More
-            </h2>
+          <div className="mt-8">
             <ul className="space-y-2">
               <li>
                 <Link
-                  to="/about-us"
+                  to="/about"
                   onClick={() => setSidebarOpen(false)}
-                  className="block cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  ℹ️ About Us
+                  <span className="text-gray-600">ℹ️</span>
+                  <span>About</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/settings"
                   onClick={() => setSidebarOpen(false)}
-                  className="block cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  ⚙️ Settings
+                  <span className="text-gray-600">⚙️</span>
+                  <span>Settings</span>
                 </Link>
               </li>
               <li>
                 <Link
                   to="/contact"
                   onClick={() => setSidebarOpen(false)}
-                  className="block cursor-pointer hover:bg-white/10 py-2 px-2 rounded"
+                  className="block border-b border-gray-600 cursor-pointer hover:bg-white hover:text-gray-800 py-2 px-2 rounded-lg flex items-center space-x-2"
                 >
-                  📞 Contact
+                  <span className="text-gray-600">📞</span>
+                  <span>Contact</span>
                 </Link>
               </li>
-             
             </ul>
           </div>
         </div>
