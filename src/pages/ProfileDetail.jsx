@@ -207,6 +207,10 @@ function ProfileDetail() {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Personal Info</h3>
                 <div className="space-y-4">
+                <div>
+                    <span className="text-sm font-medium text-gray-500">Gender</span>
+                    <p className="text-gray-800">{profile.gender}</p>
+                  </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500">Branch</span>
                     <p className="text-gray-800">{profile.branch}</p>
