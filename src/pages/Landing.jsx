@@ -39,7 +39,7 @@ function Landing() {
                 Sign up with your College email for Verification.
               </p>
             </div>
-            <div className="bg-white p-5 rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
+            <div className="bg-white p-8 rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">2</span>
               </div>
@@ -48,7 +48,7 @@ function Landing() {
                 Tell us who you like - they won't know it's you
               </p>
             </div>
-            <div className="bg-white p-5 rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
+            <div className="bg-white p-8 rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
               <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
@@ -135,10 +135,7 @@ function Landing() {
       <div className="py-20">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl font-bold text-gray-800 mb-8">Got a Crush?</h2>
-            <p className="text-xl text-gray-600 mb-12">
-              Tell them secretly and see what happens!
-            </p>
+           
             <button
               onClick={handleGetStarted}
               className="px-12 py-6 text-xl font-semibold text-white bg-gradient-to-r from-violet-600 to-pink-500 rounded-full 
