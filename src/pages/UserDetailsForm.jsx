@@ -2,6 +2,10 @@ import React, { useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { ref, set, get } from 'firebase/database';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// Initialize Firebase Storage
+const storage = getStorage();
 
 // Memoize the InputField component to prevent unnecessary re-renders
 const InputField = memo(({ label, type = "text", value, onChange, placeholder, options }) => (
@@ -28,9 +32,12 @@ const InputField = memo(({ label, type = "text", value, onChange, placeholder, o
         type={type}
         value={value}
         onChange={onChange}
-        required
+        required={type !== "file"}
         placeholder={placeholder}
-        className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200"
+        className={`block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200 ${
+          type === "file" ? "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" : ""
+        }`}
+        accept={type === "file" ? "image/*" : undefined}
       />
     )}
   </div>
@@ -48,6 +55,8 @@ const UserDetailsForm = () => {
     residence: '',
     bio: ''
   });
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -57,6 +66,27 @@ const UserDetailsForm = () => {
       ...prev,
       [field]: e.target.value
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (uid) => {
+    if (!profileImage) return null;
+    
+    const imageRef = storageRef(storage, `profile_images/${uid}/${profileImage.name}`);
+    await uploadBytes(imageRef, profileImage);
+    const downloadURL = await getDownloadURL(imageRef);
+    return downloadURL;
   };
 
   const handleSubmit = async (e) => {
@@ -73,7 +103,7 @@ const UserDetailsForm = () => {
 
     const { name, gender, year, branch, residence, bio } = formData;
     if (!name || !gender || !year || !branch || !residence || !bio) {
-      setError("Please fill all fields.");
+      setError("Please fill all required fields.");
       setLoading(false);
       return;
     }
@@ -82,6 +112,19 @@ const UserDetailsForm = () => {
       console.log("Starting data save process...");
       const userRef = ref(db, 'users/' + user.uid);
       
+      // Upload image if selected
+      let photoURL = user.photoURL;
+      if (profileImage) {
+        try {
+          photoURL = await uploadImage(user.uid);
+        } catch (imageError) {
+          console.error("Error uploading image:", imageError);
+          setError("Failed to upload profile image. Please try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
       const userData = {
         name,
         gender,
@@ -94,7 +137,7 @@ const UserDetailsForm = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         displayName: user.displayName || name,
-        photoURL: user.photoURL || null
+        photoURL
       };
 
       console.log("Saving user data:", userData);
@@ -173,56 +216,78 @@ const UserDetailsForm = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              label="Full Name"
-              value={formData.name}
-              onChange={handleChange('name')}
-              placeholder="Enter your full name"
-            />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Profile Image Upload */}
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-32 h-32 rounded-full overflow-hidden bg-violet-100 flex items-center justify-center">
+                {imagePreview ? (
+                  <img 
+                    src={imagePreview} 
+                    alt="Profile preview" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-4xl text-violet-300">👤</div>
+                )}
+              </div>
+              <InputField
+                type="file"
+                label="Profile Picture"
+                onChange={handleImageChange}
+              />
+            </div>
 
-            <InputField
-              label="Gender"
-              type="select"
-              value={formData.gender}
-              onChange={handleChange('gender')}
-              placeholder="Select gender"
-              options={genderOptions}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputField
+                label="Full Name"
+                value={formData.name}
+                onChange={handleChange('name')}
+                placeholder="Enter your full name"
+              />
 
-            <InputField
-              label="Year"
-              type="select"
-              value={formData.year}
-              onChange={handleChange('year')}
-              placeholder="Select year"
-              options={yearOptions}
-            />
+              <InputField
+                label="Gender"
+                type="select"
+                value={formData.gender}
+                onChange={handleChange('gender')}
+                placeholder="Select gender"
+                options={genderOptions}
+              />
 
-            <InputField
-              label="Branch / Department"
-              value={formData.branch}
-              onChange={handleChange('branch')}
-              placeholder="e.g., Computer Science"
-            />
+              <InputField
+                label="Year"
+                type="select"
+                value={formData.year}
+                onChange={handleChange('year')}
+                placeholder="Select year"
+                options={yearOptions}
+              />
 
-            <InputField
-              label="Residence"
-              type="select"
-              value={formData.residence}
-              onChange={handleChange('residence')}
-              placeholder="Select residence"
-              options={residenceOptions}
-            />
+              <InputField
+                label="Branch / Department"
+                value={formData.branch}
+                onChange={handleChange('branch')}
+                placeholder="e.g., Computer Science"
+              />
 
-            <InputField
-              label="Bio (one line)"
-              value={formData.bio}
-              onChange={handleChange('bio')}
-              placeholder="Tell us about yourself in one line"
-            />
+              <InputField
+                label="Residence"
+                type="select"
+                value={formData.residence}
+                onChange={handleChange('residence')}
+                placeholder="Select residence"
+                options={residenceOptions}
+              />
 
-            <div className="md:col-span-2 mt-6">
+              <InputField
+                label="Bio (one line)"
+                value={formData.bio}
+                onChange={handleChange('bio')}
+                placeholder="Tell us about yourself in one line"
+              />
+            </div>
+
+            <div className="mt-6">
               <button
                 type="submit"
                 disabled={loading}

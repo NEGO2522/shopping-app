@@ -2,20 +2,32 @@ import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import { Menu, Bell } from "lucide-react";
-import { ref, onValue } from "firebase/database";
+import { ref, onValue, get } from "firebase/database";
 import { db } from "../firebase";
 
 const Navbar = ({ toggleSidebar, user }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
+  const [userData, setUserData] = useState(null);
   const menuRef = useRef(null);
 
   const auth = getAuth();
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.uid) return;
 
-    // Convert email to safe path
+    // Fetch user data
+    const fetchUserData = async () => {
+      const userRef = ref(db, 'users/' + user.uid);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        setUserData(snapshot.val());
+      }
+    };
+
+    fetchUserData();
+
+    // Listen for notifications
     const safeEmail = user.email.replace(/\./g, ',');
     const notificationsRef = ref(db, `userNotifications/${safeEmail}/notifications`);
 
@@ -36,6 +48,7 @@ const Navbar = ({ toggleSidebar, user }) => {
   }, [user]);
 
   const getInitial = () => {
+    if (userData?.name) return userData.name.charAt(0).toUpperCase();
     if (user?.displayName) return user.displayName.charAt(0).toUpperCase();
     if (user?.email) return user.email.charAt(0).toUpperCase();
     return "?";
@@ -82,23 +95,37 @@ const Navbar = ({ toggleSidebar, user }) => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-violet-600 text-white font-semibold focus:outline-none cursor-pointer"
+              className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center overflow-hidden focus:outline-none cursor-pointer hover:ring-2 hover:ring-violet-500 transition-all duration-200"
             >
-              {getInitial()}
+              {userData?.photoURL ? (
+                <img
+                  src={userData.photoURL}
+                  alt={userData?.name || "Profile"}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-violet-700 font-semibold">
+                  {getInitial()}
+                </span>
+              )}
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-md py-2 z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-sm font-medium text-gray-900">{userData?.name || user.displayName || user.email}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-violet-100"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-violet-50 transition-colors duration-200"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Profile
+                  View Profile
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-violet-100 cursor-pointer"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-violet-50 transition-colors duration-200 cursor-pointer"
                 >
                   Logout
                 </button>

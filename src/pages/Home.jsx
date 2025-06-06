@@ -422,8 +422,16 @@ function Home() {
                     }}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700">
-                        {profile.name.charAt(0).toUpperCase()}
+                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700 overflow-hidden">
+                        {profile.photoURL ? (
+                          <img
+                            src={profile.photoURL}
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          profile.name.charAt(0).toUpperCase()
+                        )}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{profile.name}</p>
@@ -457,8 +465,16 @@ function Home() {
                 >
                   <div className="bg-gradient-to-r from-pink-500 to-violet-500 p-3">
                     <div className="flex items-center space-x-2">
-                      <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-lg font-bold text-violet-700">
-                        {profile.name.charAt(0).toUpperCase()}
+                      <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700 overflow-hidden">
+                        {profile.photoURL ? (
+                          <img
+                            src={profile.photoURL}
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          profile.name.charAt(0).toUpperCase()
+                        )}
                       </div>
                       <div className="text-white">
                         <h3 className="font-semibold text-sm">{profile.name}</h3>
@@ -539,8 +555,16 @@ function Home() {
                     onClick={() => handleProfileClick(profile.uid)}
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700">
-                        {profile.name.charAt(0).toUpperCase()}
+                      <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700 overflow-hidden">
+                        {profile.photoURL ? (
+                          <img
+                            src={profile.photoURL}
+                            alt={profile.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          profile.name.charAt(0).toUpperCase()
+                        )}
                       </div>
                       <div className="text-white">
                         <h3 className="font-semibold">{profile.name}</h3>
@@ -642,8 +666,16 @@ function Home() {
                       onClick={() => handleProfileClick(profile.uid)}
                     >
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700">
-                          {profile.name.charAt(0).toUpperCase()}
+                        <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-xl font-bold text-violet-700 overflow-hidden">
+                          {profile.photoURL ? (
+                            <img
+                              src={profile.photoURL}
+                              alt={profile.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            profile.name.charAt(0).toUpperCase()
+                          )}
                         </div>
                         <div className="text-white">
                           <h3 className="font-semibold">{profile.name}</h3>

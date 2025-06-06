@@ -3,6 +3,10 @@ import { auth, db } from '../firebase';
 import { ref, get, update } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
 import { FaCamera } from 'react-icons/fa';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+// Initialize Firebase Storage
+const storage = getStorage();
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -13,6 +17,7 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,6 +52,36 @@ const Profile = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Handle image change with preview and file storage
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file); // Store the file for later upload
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setProfileImage(ev.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Upload image to Firebase Storage
+  const uploadImage = async (uid) => {
+    if (!imageFile) return null;
+    
+    try {
+      const imageRef = storageRef(storage, `profile_images/${uid}/${imageFile.name}`);
+      await uploadBytes(imageRef, imageFile);
+      const downloadURL = await getDownloadURL(imageRef);
+      return downloadURL;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image");
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -55,29 +90,32 @@ const Profile = () => {
         setError('User not authenticated');
         return;
       }
+
+      let updatedForm = { ...form };
+
+      // Upload new image if one was selected
+      if (imageFile) {
+        try {
+          const photoURL = await uploadImage(user.uid);
+          updatedForm = { ...updatedForm, photoURL };
+        } catch (imageError) {
+          setError('Failed to upload profile image. Please try again.');
+          setSaving(false);
+          return;
+        }
+      }
+
       const userRef = ref(db, 'users/' + user.uid);
-      await update(userRef, form);
-      setUserData(form);
+      await update(userRef, updatedForm);
+      setUserData(updatedForm);
       setEditMode(false);
       setShowSaved(true);
+      setImageFile(null); // Clear the stored file
       setTimeout(() => setShowSaved(false), 2000);
     } catch (err) {
       setError('Failed to save changes');
     } finally {
       setSaving(false);
-    }
-  };
-
-  // Handle image change (preview only)
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setProfileImage(ev.target.result);
-        // You can upload to backend/Firebase Storage here if needed
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -116,11 +154,17 @@ const Profile = () => {
           <div className="flex flex-col md:flex-row items-center justify-between mb-10">
             <div className="flex items-center gap-6 relative">
               <div className="w-28 h-28 rounded-full bg-gradient-to-br from-violet-300 to-blue-200 flex items-center justify-center text-5xl font-extrabold text-violet-700 shadow-lg border-4 border-white overflow-hidden relative">
-                {profileImage ? (
+                {profileImage && editMode ? (
                   <img
                     src={profileImage}
+                    alt="Profile Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : userData?.photoURL ? (
+                  <img
+                    src={userData.photoURL}
                     alt="Profile"
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   userData?.name?.charAt(0)?.toUpperCase() || '?'

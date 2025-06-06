@@ -182,8 +182,16 @@ function ProfileDetail() {
           {/* Header */}
           <div className="bg-violet-600 px-6 py-8">
             <div className="flex items-center">
-              <div className="w-24 h-24 rounded-full bg-violet-100 flex items-center justify-center text-4xl font-bold text-violet-700">
-                {profile.name.charAt(0).toUpperCase()}
+              <div className="w-24 h-24 rounded-full bg-violet-100 flex items-center justify-center text-4xl font-bold text-violet-700 overflow-hidden">
+                {profile.photoURL ? (
+                  <img
+                    src={profile.photoURL}
+                    alt={`${profile.name}'s profile`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  profile.name.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="ml-6">
                 <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
