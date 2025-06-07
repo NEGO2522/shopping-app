@@ -826,27 +826,29 @@ const Empty = ({ msg }) => (
 );
 
 const ChatOverlay = ({ name, onClose, children }) => (
-  <div className="fixed inset-0 bg-violet-50 z-50 flex flex-col">
-    <header className="flex items-center p-4 shadow bg-white">
-      <button
-        className="p-2 rounded-full hover:bg-violet-100"
-        onClick={onClose}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 text-violet-600"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+  <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+    <div className="bg-white w-full max-w-3xl h-[80vh] mx-4 rounded-lg shadow-xl flex flex-col">
+      <header className="flex items-center p-4 border-b bg-white rounded-t-lg">
+        <button
+          className="p-2 rounded-full hover:bg-violet-100"
+          onClick={onClose}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-      </button>
-      <h2 className="text-lg font-semibold text-violet-900 ml-4">
-        {name ? `Chat with ${name}` : 'Chat'}
-      </h2> {/* Added name to chat header */}
-    </header>
-    <div className="flex-1 overflow-hidden">{children}</div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-violet-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </button>
+        <h2 className="text-lg font-semibold text-violet-900 ml-4">
+          {name ? `Chat with ${name}` : 'Chat'}
+        </h2>
+      </header>
+      <div className="flex-1 overflow-hidden">{children}</div>
+    </div>
   </div>
 );
 
