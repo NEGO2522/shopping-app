@@ -493,7 +493,7 @@ function Home() {
                           </div>
                         </div>
 
-                        <div className="p-4">
+                        <div className="p-4 cursor-pointer" onClick={() => handleProfileClick(profile.uid)}>
                           <div className="mb-4 p-3 bg-pink-50 rounded-lg border border-pink-200">
                             <div className="flex items-center justify-center space-x-2">
                               <span className="text-2xl">💘</span>

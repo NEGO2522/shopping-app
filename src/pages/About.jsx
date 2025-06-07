@@ -13,7 +13,7 @@ const About = () => {
           </div>
           <div className="space-y-6">
             <p className="text-gray-600">
-              Campus Crush is a safe and secure platform designed to help students at Poornima University find and connect with their crushes anonymously. 
+              Campus Crush is a safe and secure platform designed to help students at Poornima University find and connect with their crushes & share their thoughts anonymously. 
             </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -21,14 +21,15 @@ const About = () => {
               <div className="bg-white/80 rounded-xl shadow p-6">
                 <div className="flex items-center mb-4">
                   <Users className="text-violet-600 w-6 h-6 mr-3" />
-                  <h2 className="text-xl font-bold text-violet-900">How it Works</h2>
+                  <h2 className="text-xl font-bold text-violet-900">Connect to your crush:</h2>
                 </div>
                 <ol className="list-decimal list-inside space-y-2 text-gray-600">
-                  <li>Create your profile with basic details</li>
-                  <li>Browse profiles of other students anonymously</li>
-                  <li>Send a crush request to someone you like</li>
-                  <li>Wait for them to accept your crush request</li>
-                  <li>Start chatting once both of you accept</li>
+                <li>Create your profile with basic details</li>
+                <li>Browse other students' profiles anonymously</li>
+                <li>Send a crush request to someone you like</li>
+                <li>Your crush will never know you sent a request.</li>
+                <li>Wait to see if your crush likes you back</li>
+                <li>Start chatting once it’s a mutual crush</li>
                 </ol>
               </div>
 
@@ -43,7 +44,6 @@ const About = () => {
                   <li>No personal information shared initially</li>
                   <li>Verified Poornima University students only</li>
                   <li>Secure messaging system</li>
-                  <li>Report and block features available</li>
                 </ul>
               </div>
 
