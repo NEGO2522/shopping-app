@@ -827,7 +827,7 @@ const Empty = ({ msg }) => (
 
 const ChatOverlay = ({ name, onClose, children }) => (
   <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-    <div className="bg-white w-full max-w-3xl h-[80vh] mx-4 rounded-lg shadow-xl flex flex-col">
+    <div className="bg-white w-full max-w-3xl h-[60vh] mx-4 rounded-lg shadow-xl flex flex-col">
       <header className="flex items-center p-4 border-b bg-white rounded-t-lg">
         <button
           className="p-2 rounded-full hover:bg-violet-100"

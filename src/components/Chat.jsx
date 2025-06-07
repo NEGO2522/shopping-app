@@ -66,10 +66,6 @@ function Chat({ recipientId, recipientName }) {
   return (
     <div className="flex flex-col h-full bg-white rounded-lg shadow-md">
       {/* Chat Header */}
-      <div className="bg-gradient-to-r from-pink-500 to-violet-500 p-4 rounded-t-lg">
-        <h3 className="text-white font-semibold text-lg">Chat with {recipientName}</h3>
-      </div>
-
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
