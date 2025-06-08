@@ -25,44 +25,9 @@ function Landing() {
         </div>
       </div>
 
-      {/* How It Works */}
-      <div className="py-8 sm:py-16">
-        <div className="container mx-auto px-2 sm:px-4">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8 sm:mb-16">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-12">
-            <div className="bg-white p-3 sm:p-5 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
-              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
-                <span className="text-base sm:text-xl font-bold text-white">1</span>
-              </div>
-              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Join</h3>
-              <p className="text-gray-600 text-sm sm:text-lg">
-                Sign up with your College email for Verification.
-              </p>
-            </div>
-            <div className="bg-white p-3 sm:p-8 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
-              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
-                <span className="text-base sm:text-2xl font-bold text-white">2</span>
-              </div>
-              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Like Someone</h3>
-              <p className="text-gray-600 text-sm sm:text-lg">
-                Tell us who you like - they won't know it's you
-              </p>
-            </div>
-            <div className="bg-white p-3 sm:p-8 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
-              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
-                <span className="text-base sm:text-2xl font-bold text-white">3</span>
-              </div>
-              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Match</h3>
-              <p className="text-gray-600 text-sm sm:text-lg">
-                If they like you too, start chatting!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Campus Community Card */}
-      <div className="py-8 sm:py-16">
+       {/* Campus Community Card */}
+       <div className="py-8 sm:py-16">
         <div className="container mx-auto px-2 sm:px-4">
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl sm:rounded-3xl shadow-xl overflow-hidden transform hover:scale-[1.02] transition-all duration-300">
@@ -127,6 +92,45 @@ function Landing() {
           </div>
         </div>
       </div>
+
+
+      {/* How It Works */}
+      <div className="py-8 sm:py-16">
+        <div className="container mx-auto px-2 sm:px-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8 sm:mb-16">How It Works</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-12">
+            <div className="bg-white p-3 sm:p-5 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
+              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
+                <span className="text-base sm:text-xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Join</h3>
+              <p className="text-gray-600 text-sm sm:text-lg">
+                Sign up with your College email for Verification.
+              </p>
+            </div>
+            <div className="bg-white p-3 sm:p-8 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
+              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
+                <span className="text-base sm:text-2xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Like Someone</h3>
+              <p className="text-gray-600 text-sm sm:text-lg">
+                Tell us who you like - they won't know it's you
+              </p>
+            </div>
+            <div className="bg-white p-3 sm:p-8 rounded-2xl sm:rounded-4xl shadow-lg text-center transform hover:scale-105 transition-all duration-300">
+              <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-violet-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-6">
+                <span className="text-base sm:text-2xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-base sm:text-xl font-bold text-gray-800 mb-1 sm:mb-4">Match</h3>
+              <p className="text-gray-600 text-sm sm:text-lg">
+                If they like you too, start chatting!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     
 
       {/* Final CTA */}
       <div className="py-10 sm:py-20">

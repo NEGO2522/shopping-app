@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { ref, push, get, query, orderByChild, onValue, update, remove } from 'firebase/database';
 import { FiHeart, FiMessageCircle, FiClock, FiX, FiSend, FiPlus } from 'react-icons/fi';
+import comment from '../assets/comment.png';
 
 // Custom scrollbar styles (kept)
 const scrollbarStyles = `.custom-scrollbar::-webkit-scrollbar {
@@ -339,7 +340,14 @@ function AnonymousThoughts() {
       )}
 
       <h2 className="text-2xl font-bold text-violet-900 mb-6 flex items-center justify-center">
-        <span className="text-3xl mr-2">💭</span>
+        <span className="text-3xl mr-2">
+          <img 
+            className='w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 object-contain transition-all duration-300 hover:scale-110 filter hover:brightness-110' 
+            src={comment} 
+            alt="comment" 
+            style={{filter: 'invert(45%) sepia(90%) saturate(1000%) hue-rotate(230deg) brightness(90%)'}}
+          />
+        </span>
         Campus Thoughts
       </h2>
 
